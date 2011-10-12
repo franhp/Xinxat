@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Servidor: localhost
--- Tiempo de generación: 12-10-2011 a las 15:13:04
+-- Tiempo de generación: 12-10-2011 a las 15:49:45
 -- Versión del servidor: 5.5.8
 -- Versión de PHP: 5.3.5
 
@@ -64,8 +64,8 @@ CREATE TABLE IF NOT EXISTS `categories` (
 
 CREATE TABLE IF NOT EXISTS `comments` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `userid` int(11) NOT NULL,
-  `postid` int(11) NOT NULL,
+  `id_user` int(11) NOT NULL,
+  `id_post` int(11) NOT NULL,
   `comment` varchar(1000) NOT NULL,
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
@@ -145,10 +145,10 @@ CREATE TABLE IF NOT EXISTS `users` (
   `username` varchar(25) NOT NULL,
   `password` varchar(50) NOT NULL,
   `name` varchar(100) NOT NULL,
-  `lastname` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `lastname` varchar(100) NOT NULL,
   `lastlogin` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `lastonline` varchar(100) NOT NULL,
-  `IP` varchar(10) NOT NULL,
+  `lastonline` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `IP` varchar(30) NOT NULL,
   `location` varchar(50) NOT NULL,
   `birthdate` date NOT NULL,
   `email` varchar(50) NOT NULL,
