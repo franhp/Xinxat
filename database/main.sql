@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Servidor: localhost
--- Tiempo de generación: 12-10-2011 a las 16:33:37
+-- Tiempo de generación: 12-10-2011 a las 16:39:03
 -- Versión del servidor: 5.5.8
 -- Versión de PHP: 5.3.5
 
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `access` (
   `userid` int(11) NOT NULL,
   `roomid` int(11) NOT NULL,
   `state` smallint(1) NOT NULL,
-  `role` smallint(1) NOT NULL,
+  `role` int(1) NOT NULL,
   PRIMARY KEY (`accessid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
