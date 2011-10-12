@@ -1,11 +1,11 @@
--- phpMyAdmin SQL Dump
+ï»¿-- phpMyAdmin SQL Dump
 -- version 3.3.9
 -- http://www.phpmyadmin.net
 --
 -- Servidor: localhost
--- Tiempo de generación: 12-10-2011 a las 15:49:45
--- Versión del servidor: 5.5.8
--- Versión de PHP: 5.3.5
+-- Tiempo de generaciÃ³n: 12-10-2011 a las 16:22:44
+-- VersiÃ³n del servidor: 5.5.8
+-- VersiÃ³n de PHP: 5.3.5
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
@@ -26,12 +26,12 @@ SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 --
 
 CREATE TABLE IF NOT EXISTS `access` (
-  `id_access` int(11) NOT NULL AUTO_INCREMENT,
-  `id_user` int(11) NOT NULL,
-  `id_room` int(11) NOT NULL,
+  `accessid` int(11) NOT NULL AUTO_INCREMENT,
+  `userid` int(11) NOT NULL,
+  `roomid` int(11) NOT NULL,
   `state` smallint(1) NOT NULL,
   `role` smallint(1) NOT NULL,
-  PRIMARY KEY (`id_access`)
+  PRIMARY KEY (`accessid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
@@ -64,8 +64,8 @@ CREATE TABLE IF NOT EXISTS `categories` (
 
 CREATE TABLE IF NOT EXISTS `comments` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `id_user` int(11) NOT NULL,
-  `id_post` int(11) NOT NULL,
+  `userid` int(11) NOT NULL,
+  `postid` int(11) NOT NULL,
   `comment` varchar(1000) NOT NULL,
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
@@ -106,8 +106,8 @@ CREATE TABLE IF NOT EXISTS `posts` (
 
 CREATE TABLE IF NOT EXISTS `posts_categories` (
   `id` int(11) NOT NULL DEFAULT '0',
-  `id_post` int(11) DEFAULT NULL,
-  `id_category` int(11) DEFAULT NULL,
+  `postid` int(11) DEFAULT NULL,
+  `categoryid` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -123,10 +123,10 @@ CREATE TABLE IF NOT EXISTS `posts_categories` (
 --
 
 CREATE TABLE IF NOT EXISTS `rooms` (
-  `id_room` int(11) NOT NULL AUTO_INCREMENT,
+  `roomid` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(25) NOT NULL,
   `description` varchar(50) NOT NULL,
-  PRIMARY KEY (`id_room`)
+  PRIMARY KEY (`roomid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 --
