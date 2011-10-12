@@ -16,18 +16,15 @@ import com.google.appengine.api.xmpp.XMPPServiceFactory;
 
 public class Server extends HttpServlet {
 	
-	private Stack<Message> pila = new Stack<Message>();
+	private Stack<String> pila = new Stack<String>();
 	
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
-
-	    JID fromJid = new JID(req.getParameter("from"));
-	    JID recipientJids = new JID(req.getParameter("to"));
-	    String body = req.getParameter("msg");
-    	Message message = new MessageBuilder().withRecipientJids(recipientJids).withFromJid(fromJid).withBody(body).build();
-    	
-    	
-    	pila.push(message);
+  
+		
+		   //A la pila!
+    	String msg = req.getParameter("msg");
+    	pila.push(msg);
     	
     	
     	resp.getWriter().println("OK");
@@ -49,20 +46,33 @@ public class Server extends HttpServlet {
     	
     	resp.setContentType("text/plain");
     	
-    	if(pila.isEmpty()) resp.getWriter().println("EMPTY");
+    	if(pila.isEmpty()) resp.getWriter().println("<presence xml:lang=\"en\">\n " +
+    			"\t<show>chat</show>\n" +
+    			"\t<status>" + req.getParameter("status") + "</status>\n" +
+    			"</presence>");
+    			//Falta hacer lo del status y tal
 	    else {
 	    	while (!pila.isEmpty()){
-	    		Message missatge = pila.pop();
+	    		String missatge = pila.pop();
+	    		resp.getWriter().println(missatge);
 	    		
-	    		resp.getWriter().println("<message ");
-	    		resp.getWriter().println("from=" + missatge.getFromJid());
+	    		/*resp.getWriter().println("<?xml version=\"1.0\"?>\n" +
+	    				"<stream:stream from=\"xinxat\"\n" +
+	    				" \t id=\"someid\" xmlns=\"jabber:client\" \n" +
+	    				" \t xmlns:stream=\"http://etherx.jabber.org/streams\" version=\"1.0\">\n" +
+	    				"\t\t<message ");
 	    		
+	    		//From
+	    		resp.getWriter().println("\t\t\t from=" + missatge.getFromJid());
+	    		//To
 	    		for (JID forJID : missatge.getRecipientJids()) {
 	    			String recipientJid = forJID.toString();
-	    			resp.getWriter().println("to=" + recipientJid); 
+	    			resp.getWriter().println("\t\t\t to=" + recipientJid + ">\n"); 
 	    		}
-	    		resp.getWriter().println("> <body>" + missatge.getBody() + "</body>");
-	    		resp.getWriter().println("</message>");
+	    		//Body
+	    		resp.getWriter().println("\t\t\t<body>\n\t\t\t\t" + missatge.getBody() + "\n\t\t\t</body>");
+	    		
+	    		resp.getWriter().println("\t\t</message>\n</stream:stream>");*/
 	    		
 	    	}
 	    }
