@@ -1,9 +1,9 @@
-﻿-- phpMyAdmin SQL Dump
+-- phpMyAdmin SQL Dump
 -- version 3.3.9
 -- http://www.phpmyadmin.net
 --
 -- Servidor: localhost
--- Tiempo de generación: 12-10-2011 a las 16:22:44
+-- Tiempo de generación: 12-10-2011 a las 16:33:37
 -- Versión del servidor: 5.5.8
 -- Versión de PHP: 5.3.5
 
@@ -152,7 +152,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `location` varchar(50) NOT NULL,
   `birthdate` date NOT NULL,
   `email` varchar(50) NOT NULL,
-  `role` int(11) NOT NULL DEFAULT '1',
+  `role` int(1) NOT NULL DEFAULT '1',
   `oauth_token` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
