@@ -8,12 +8,11 @@ import java.util.Stack;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.ParserConfigurationException;
 
-import com.google.appengine.api.xmpp.JID;
-import com.google.appengine.api.xmpp.Message;
-import com.google.appengine.api.xmpp.MessageBuilder;
-import com.google.appengine.api.xmpp.XMPPService;
-import com.google.appengine.api.xmpp.XMPPServiceFactory;
+import org.xml.sax.SAXException;
+
+import xinxat.server.Xmpp;
 
 
 public class Server extends HttpServlet {
@@ -24,14 +23,23 @@ public class Server extends HttpServlet {
             throws IOException {
   
 		
-		   //A la pila!
-    	String msg = req.getParameter("msg");
-    	String to = req.getParameter("to");
+		//A la pila!
+		Xmpp msg = new Xmpp(req.getParameter("msg"));
+		
+		String to = null;
+		try {
+			to = msg.getRecipient();
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		}
     	
+		
     	Stack<String> pila_usuari = pila.get(to);
     	if(pila_usuari == null) pila_usuari = new Stack<String>();
     	
-    	pila_usuari.push(msg);
+    	pila_usuari.push(msg.getAllMessage());
     	
     	pila.put(to, pila_usuari);
     	resp.getWriter().println("OK");
