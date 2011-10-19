@@ -2,6 +2,8 @@ package xinxat.server;
 
 import java.io.IOException;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -16,7 +18,7 @@ import com.google.appengine.api.xmpp.XMPPServiceFactory;
 
 public class Server extends HttpServlet {
 	
-	private Stack<String> pila = new Stack<String>();
+	private Map<String, Stack<String>> pila = new HashMap<String, Stack<String>>();
 	
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
@@ -24,9 +26,14 @@ public class Server extends HttpServlet {
 		
 		   //A la pila!
     	String msg = req.getParameter("msg");
-    	pila.push(msg);
+    	String to = req.getParameter("to");
     	
+    	Stack<String> pila_usuari = pila.get(to);
+    	if(pila_usuari == null) pila_usuari = new Stack<String>();
     	
+    	pila_usuari.push(msg);
+    	
+    	pila.put(to, pila_usuari);
     	resp.getWriter().println("OK");
     	
     	/* Stanza?
@@ -46,15 +53,27 @@ public class Server extends HttpServlet {
     	
     	resp.setContentType("text/plain");
     	
-    	if(pila.isEmpty()) resp.getWriter().println("<presence xml:lang=\"en\">\n " +
+    	
+    	String to = req.getParameter("to");
+    	Stack<String> missatges = pila.get(to);
+    	if(missatges == null) missatges = new Stack<String>();
+    	
+    	if(missatges.isEmpty()) resp.getWriter().println("<presence xml:lang=\"en\">\n " +
     			"\t<show>chat</show>\n" +
     			"\t<status>" + req.getParameter("status") + "</status>\n" +
     			"</presence>");
     			//Falta hacer lo del status y tal
 	    else {
-	    	while (!pila.isEmpty()){
-	    		String missatge = pila.pop();
-	    		resp.getWriter().println(missatge);
+	    	//Reverse la pila
+	    	Stack <String> pila_reversed = new Stack<String>();
+	    	while(!missatges.isEmpty()){
+	    		String message = missatges.pop();
+	    		pila_reversed.push(message);
+	    	}
+	    	
+	    	//Escupe la pila
+	    	while (!pila_reversed.isEmpty()){
+	    		resp.getWriter().println( pila_reversed.pop());
 	    		
 	    		/*resp.getWriter().println("<?xml version=\"1.0\"?>\n" +
 	    				"<stream:stream from=\"xinxat\"\n" +
@@ -77,6 +96,8 @@ public class Server extends HttpServlet {
 	    	}
 	    }
     }
+    
+    
 	
 	
 	
