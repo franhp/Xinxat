@@ -40,7 +40,7 @@ public class UpdateDB extends HttpServlet {
 					datastore.delete(result.getKey());
 				
 				//Ir a buscar usuarios
-				URL url = new URL("http://xinxat.com/scripts/api.php?users&xml");
+				URL url = new URL("http://api.xinxat.com/?users");
 				//URL url = new URL("http://xinxat.com/scripts/api.php?roomlist&xml");
 				BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
 				String entrada = "";
@@ -61,15 +61,22 @@ public class UpdateDB extends HttpServlet {
 
 				NodeList nodeLista = documento.getElementsByTagName("user");
 
-				String name = null;
-				String code = null;
+
 				for (int s = 0; s < nodeLista.getLength(); s++) {
 						Element element = (Element) nodeLista.item(s);
-						name = element.getAttribute("nickname");
-						code = element.getAttribute("code");
+						String name = element.getAttribute("nickname");
+						String code = element.getAttribute("code");
+						String show = element.getAttribute("show");
+						String status = element.getAttribute("status");
+						if(status.isEmpty()) status = "offline";
+						String lastonline = element.getAttribute("lastonline");
+						if(lastonline.isEmpty()) lastonline = "0";
 						Entity user = new Entity("user");
 						user.setProperty("username", name);
 						user.setProperty("password", code);
+						user.setProperty("show", show);
+						user.setProperty("status", status);
+						user.setProperty("lastonline", lastonline);
 						datastore.put(user);
 				}
 				
