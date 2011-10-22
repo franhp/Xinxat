@@ -1,7 +1,12 @@
 package xinxat.server;
 
+/**
+ * This class represents the main server that listens to every single
+ * request and deals with it depending on its destination.
+ * 
+ * @author Fran Hermoso <franhp@franstelecom.com>
+ */
 import java.io.IOException;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -9,23 +14,25 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.ParserConfigurationException;
-
 import org.xml.sax.SAXException;
-
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
-
 import xinxat.server.Xmpp;
 
 
 @SuppressWarnings("serial")
 public class Server extends HttpServlet {
+	/**
+	 * This Map holds a Stack of messages for every user in the system
+	 */
+	private Map<String, Stack<String>> stack = new HashMap<String, Stack<String>>();
 	
-	private Map<String, Stack<String>> pila = new HashMap<String, Stack<String>>();
-	
+	/**
+	 * This Servlet receives all the messages and puts them on the stack.
+	 */
 	@SuppressWarnings("deprecation")
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
@@ -45,7 +52,7 @@ public class Server extends HttpServlet {
 					try {
 						recipient = msg.getRecipient();
 						//Get the Stack if it exists
-						Stack<String> pila_usuari = pila.get(recipient);
+						Stack<String> pila_usuari = stack.get(recipient);
 						//If it doesn't exist, check if the user should have an stack
 				    	if(pila_usuari == null) {
 				    		Query q = new Query("user");
@@ -60,7 +67,7 @@ public class Server extends HttpServlet {
 				    	//Now that we have a Stack, fill it!
 				    	if(pila_usuari != null){
 					    	pila_usuari.push(msg.getAllMessage());
-					    	pila.put(recipient, pila_usuari);
+					    	stack.put(recipient, pila_usuari);
 					    	resp.getWriter().println("OK");
 				    	}
 				    	else resp.getWriter().println("No user found");
@@ -81,10 +88,14 @@ public class Server extends HttpServlet {
 
     }
     
+	/**
+	 * This servlet outputs the pending messages still on the stack and
+	 * also sets the presence
+	 */
     @SuppressWarnings("deprecation")
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
     		throws IOException {
-
+    	//Check if the user exists
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		Query query = new Query("user");
 		query.addFilter("password", Query.FilterOperator.EQUAL, req.getParameter("token"));
@@ -92,22 +103,23 @@ public class Server extends HttpServlet {
 		if(pquery.countEntities() < 1)
 				resp.getWriter().println("Wrong password");
 		
-		
 		String recipient = req.getParameter("to");
 		
 		for (Entity requestingUser : pquery.asIterable()) {
 			if(recipient.equals(requestingUser.getProperty("username"))){
-			    	Stack<String> missatges = pila.get(recipient);
+					//Get the stack of pending messages from the map
+			    	Stack<String> missatges = stack.get(recipient);
 			    	if(missatges == null) missatges = new Stack<String>();
 			    	
+			    	//Set the presence of the user
 					String show = req.getParameter("show");
 					String status = req.getParameter("status");
 					
-					//get
 					Query q = new Query("user");
 					q.addFilter("username", Query.FilterOperator.EQUAL, recipient);
 					PreparedQuery pq = datastore.prepare(q);
-			
+					
+					//Write the presence on the datastore
 					Entity user = new Entity("user");
 					for (Entity result : pq.asIterable()) {
 						user.setProperty("username", result.getProperty("username"));
@@ -118,9 +130,9 @@ public class Server extends HttpServlet {
 						user.setProperty("lastonline", lastonline);
 						datastore.delete(result.getKey());
 					}
-					//put
 					datastore.put(user);
 					
+					//Return presence if no messages are unread
 			    	if(missatges.isEmpty()){
 			    			resp.setContentType("text/plain");
 			    			resp.getWriter().println("<presence xml:lang=\"en\">" +
@@ -128,15 +140,16 @@ public class Server extends HttpServlet {
 			    	    			"\n\t<status>" + status + "</status>" +
 			    	    			"\n</presence>");
 			    	}
+			    	//Return the messages
 				    else {
-				    	//Reverse la pila
+				    	//Reverse the Stack
 				    	Stack <String> pila_reversed = new Stack<String>();
 				    	while(!missatges.isEmpty()){
 				    		String message = missatges.pop();
 				    		pila_reversed.push(message);
 				    	}
 				    	
-				    	//Escupe la pila
+				    	//Output the Stack
 				    	while (!pila_reversed.isEmpty()){
 				    		resp.setContentType("text/plain");
 				    		resp.getWriter().println( pila_reversed.pop());
@@ -148,11 +161,4 @@ public class Server extends HttpServlet {
 		}
 		
     }
-    
-    
-	
-	
-	
-	
-	
 }
