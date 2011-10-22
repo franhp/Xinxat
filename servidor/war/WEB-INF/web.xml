@@ -6,15 +6,51 @@
          xmlns="http://java.sun.com/xml/ns/javaee">
 
   <!-- Servlets -->
-  <servlet>
-    <servlet-name>greetServlet</servlet-name>
-    <servlet-class>xinxat.server.GreetingServiceImpl</servlet-class>
+  
+  updateUsers
+  
+    <servlet>
+    <servlet-name>updateDB</servlet-name>
+    <servlet-class>xinxat.server.UpdateDB</servlet-class>
   </servlet>
   
   <servlet-mapping>
-    <servlet-name>greetServlet</servlet-name>
-    <url-pattern>/servidor/greet</url-pattern>
+    <servlet-name>updateDB</servlet-name>
+    <url-pattern>/updateDB</url-pattern>
   </servlet-mapping>
+  
+ <servlet>
+    <servlet-name>echoServer</servlet-name>
+    <servlet-class>xinxat.server.echoServer</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>echoServer</servlet-name>
+    <url-pattern>/echoServer</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>Roster</servlet-name>
+    <servlet-class>xinxat.server.Roster</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>Roster</servlet-name>
+    <url-pattern>/roster</url-pattern>
+  </servlet-mapping>
+  
+  
+  
+   <servlet>
+    <servlet-name>Server</servlet-name>
+    <servlet-class>xinxat.server.Server</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>Server</servlet-name>
+    <url-pattern>/messages</url-pattern>
+  </servlet-mapping>
+  
   
   <!-- Default page to serve -->
   <welcome-file-list>

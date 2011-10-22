@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cronentries>
+  <cron>
+    <url>/updateDB</url>
+    <description>Updates the users database using the JSON from xinxat.com</description>
+    <schedule>every 1 mins</schedule>
+  </cron>
+</cronentries>

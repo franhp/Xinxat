@@ -44,7 +44,6 @@ public class Xmpp {
 	        org.w3c.dom.NodeList nodes = doc.getElementsByTagName("message");
 
 	        String name = null;
-	        // iterate the employees
 	        for (int i = 0; i < nodes.getLength(); i++) {
 	           Element element = (Element) nodes.item(i);
 	           name = element.getAttribute(field);

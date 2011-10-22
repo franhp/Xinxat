@@ -1,14 +1,28 @@
-/* Roster
+package xinxat.server;
 
-Roster is the name given to the list of contacts which appears in one's chat client.
- In Google Talk terms, it is the list of friends you would see once you login.
-  The elements of the roster are your contacts. Each of these items is identified by 
-  a unique identifier called JID (Jabber Identifier). JIDs have a syntax similar to that 
-  of Email addresses, i.e., user@domain. The domain part in this identifier is usually 
-  the server one connects to. In case of Google Talk, it is gmail.com or any of its domain aliases.
+import java.io.IOException;
 
-Rosters are stored on the server so that the XMPP client may retrieve the same each
- time the user logs in. Rosters are a type of IQ Stanza. (See IQ explanation.) 
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-*/
+@SuppressWarnings("serial")
+public class Roster extends HttpServlet {
+
+	public void doGet(HttpServletRequest req, HttpServletResponse resp)
+    		throws IOException {
+		
+		
+		resp.getWriter().println("Roster Get");
+		req.getParameter("hola");
+	}
+	
+	public void doPost(HttpServletRequest req, HttpServletResponse resp)
+    		throws IOException {
+		
+		
+		resp.getWriter().println("Roster Post");
+	}
+}
+
 

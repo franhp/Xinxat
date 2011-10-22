@@ -15,6 +15,7 @@ import org.xml.sax.SAXException;
 import xinxat.server.Xmpp;
 
 
+@SuppressWarnings("serial")
 public class Server extends HttpServlet {
 	
 	private Map<String, Stack<String>> pila = new HashMap<String, Stack<String>>();
@@ -34,16 +35,15 @@ public class Server extends HttpServlet {
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		}
-    	
-		
-    	Stack<String> pila_usuari = pila.get(to);
-    	if(pila_usuari == null) pila_usuari = new Stack<String>();
-    	
-    	pila_usuari.push(msg.getAllMessage());
-    	
-    	pila.put(to, pila_usuari);
-    	resp.getWriter().println("OK");
-    	
+    	finally {
+	    	Stack<String> pila_usuari = pila.get(to);
+	    	if(pila_usuari == null) pila_usuari = new Stack<String>();
+	    	
+	    	pila_usuari.push(msg.getAllMessage());
+	    	
+	    	pila.put(to, pila_usuari);
+	    	resp.getWriter().println("OK");
+    	}
     	/* Stanza?
     	 <presence 
     	 	from="romeo@gmail.com" 
