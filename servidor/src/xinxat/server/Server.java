@@ -32,6 +32,12 @@ public class Server extends HttpServlet {
 	
 	/**
 	 * This Servlet receives all the messages and puts them on the stack.
+	 * 
+	 * In order to send a message the user must send a POST to the following URL
+	 * 		http://projecte-xinxat.appspot.com/messages
+	 * 		Add the following fields to the request
+	 * 			msg: 	contains the xmpp message
+	 * 			token:	contains the token given by the frontend 
 	 */
 	@SuppressWarnings("deprecation")
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
@@ -91,6 +97,13 @@ public class Server extends HttpServlet {
 	/**
 	 * This servlet outputs the pending messages still on the stack and
 	 * also sets the presence
+	 * 
+	 * In order to receive the messages the user must send a GET request to the following URL:
+	 * 			http://projecte-xinxat.appspot.com/messages
+	 * 			status: contains the status message
+	 * 			show:	contains one of the following: chat, dnd, away
+	 * 			to:		contains the requestor's username
+	 * 			token:	contains the token given by the frontend 
 	 */
     @SuppressWarnings("deprecation")
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
