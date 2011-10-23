@@ -1,22 +1,26 @@
 package xinxat.server;
 
+
+/**
+ * This class syncrhronizes the frontend database with the backend's
+ * It is called every minute by a cron job
+ * 
+ * @author Fran Hermoso <franhp@franstelecom.com>
+ */
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.URL;
-
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
-
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -57,7 +61,6 @@ public class UpdateDB extends HttpServlet {
 				archivo.setCharacterStream(new StringReader(cadena)); 
 
 				Document documento = db.parse(archivo);
-				//documento.getDocumentElement().normalize();
 
 				NodeList nodeLista = documento.getElementsByTagName("user");
 
