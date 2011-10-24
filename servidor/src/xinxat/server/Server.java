@@ -7,6 +7,7 @@ package xinxat.server;
  * @author Fran Hermoso <franhp@franstelecom.com>
  */
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -29,7 +30,13 @@ public class Server extends HttpServlet {
 	/**
 	 * This Map holds a Stack of messages for every user in the system
 	 */
-	private Map<String, Stack<String>> stack = new HashMap<String, Stack<String>>();
+	private Map<String, Stack<String>> messageStack = new HashMap<String, Stack<String>>();
+	
+	/**
+	 * This Map holds a List of users for every channel
+	 */
+	public static Map<String, ArrayList<String>> rooms = new HashMap<String, ArrayList<String>>();
+	
 	
 	/**
 	 * This Servlet receives all the messages and puts them on the stack.
@@ -42,23 +49,24 @@ public class Server extends HttpServlet {
 	 */
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
+		
 		//Read and check if the XMPP xml is correct
 		Xmpp msg = new Xmpp(req.getParameter("msg"));
-		
-		//Check if the token matches the user in the from field of the XMPP
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		Query query = new Query("user");
-		query.addFilter("password", Query.FilterOperator.EQUAL, req.getParameter("token"));
-		PreparedQuery pquery = datastore.prepare(query);
-		if(pquery.countEntities(FetchOptions.Builder.withDefaults()) < 1) resp.getWriter().println("Wrong password");
-		for (Entity user : pquery.asIterable()) {
-			try {
-				if(user.getProperty("username").toString().equals(msg.getSender())){
-					String recipient = null;
-					try {
-						recipient = msg.getRecipient();
+		
+		try {
+			//If it is a normal chat
+			if(msg.getType().equals("chat")){
+				//Check if the token matches the user in the from field of the XMPP
+				Query query = new Query("user");
+				query.addFilter("password", Query.FilterOperator.EQUAL, req.getParameter("token"));
+				PreparedQuery pquery = datastore.prepare(query);
+				if(pquery.countEntities(FetchOptions.Builder.withDefaults()) < 1) resp.getWriter().println("Wrong password");
+				for (Entity user : pquery.asIterable()) {
+					if(user.getProperty("username").toString().equals(msg.getSender())){
+						String recipient = msg.getRecipient();
 						//Get the Stack if it exists
-						Stack<String> pila_usuari = stack.get(recipient);
+						Stack<String> pila_usuari = messageStack.get(recipient);
 						//If it doesn't exist, check if the user should have an stack
 				    	if(pila_usuari == null) {
 				    		Query q = new Query("user");
@@ -73,27 +81,74 @@ public class Server extends HttpServlet {
 				    	//Now that we have a Stack, fill it!
 				    	if(pila_usuari != null){
 					    	pila_usuari.push(msg.getAllMessage());
-					    	stack.put(recipient, pila_usuari);
+					    	messageStack.put(recipient, pila_usuari);
 					    	resp.getWriter().println("OK");
 				    	}
 				    	else resp.getWriter().println("No user found");
-					} catch (SAXException e) {
-						e.printStackTrace();
-					} catch (ParserConfigurationException e) {
-						e.printStackTrace();
 					}
-				}
-				else
-					resp.getWriter().println("Wrong username");
-			} catch (SAXException e) {
-				e.printStackTrace();
-			} catch (ParserConfigurationException e) {
-				e.printStackTrace();
+					else
+						resp.getWriter().println("Wrong username");
+				} 
 			}
+			//If it is a groupchat
+			else if (msg.getType().equals("groupchat")){
+				String destChannel = msg.getRecipient();
+				ArrayList<String> peopleInRoom = rooms.get(destChannel);
+				for (String user : peopleInRoom){
+					Stack<String> pila_usuari = messageStack.get(user);
+					//If it doesn't exist, check if the user should have an stack
+			    	if(pila_usuari == null) {
+			    		Query q = new Query("user");
+			    		q.addFilter("username", Query.FilterOperator.EQUAL, user);
+						PreparedQuery pq = datastore.prepare(q);
+						for (Entity result : pq.asIterable()) {
+							String username = result.getProperty("username").toString();
+							if(username != null)
+								pila_usuari = new Stack<String>();
+						}	
+			    	}
+			    	//Now that we have a Stack, fill it!
+			    	if(pila_usuari != null){
+				    	pila_usuari.push(msg.getAllMessage());
+				    	messageStack.put(user, pila_usuari);
+				    	resp.getWriter().println("OK");
+			    	}
+			    	else resp.getWriter().println("No user found");
+				}
+			}
+		}
+		catch (SAXException e) {
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
 		}
 
     }
+	
+	public static  void addUserToRoom(String user, String room){
+		ArrayList<String> users = new ArrayList<String>();
+		for(String otherUser: rooms.get(room))
+			users.add(otherUser);
+		users.add(user);
+		rooms.put(room, users);
+	}
+	
+	public  void deleteUserFromRoom(String user, String room){
+		ArrayList<String> users = new ArrayList<String>();
+		for(String otherUser: rooms.get(room))
+			if(!otherUser.equals(users))
+				users.add(otherUser);
+		rooms.put(room, users);
+	}
+	
+	public static  void reset() {
+		rooms.clear();
+	}
     
+	public static  ArrayList<String> getUsersFromRoom(String room){
+		return rooms.get(room);
+	}
+	
 	/**
 	 * This servlet outputs the pending messages still on the stack and
 	 * also sets the presence
@@ -120,7 +175,7 @@ public class Server extends HttpServlet {
 		for (Entity requestingUser : pquery.asIterable()) {
 			if(recipient.equals(requestingUser.getProperty("username"))){
 					//Get the stack of pending messages from the map
-			    	Stack<String> missatges = stack.get(recipient);
+			    	Stack<String> missatges = messageStack.get(recipient);
 			    	if(missatges == null) missatges = new Stack<String>();
 			    	
 			    	//Set the presence of the user
@@ -173,4 +228,6 @@ public class Server extends HttpServlet {
 		}
 		
     }
+
+
 }

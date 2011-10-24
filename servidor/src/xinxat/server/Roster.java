@@ -6,6 +6,8 @@ package xinxat.server;
  * @author Fran Hermoso <franhp@franstelecom.com>
  */
 import java.io.IOException;
+import java.util.ArrayList;
+
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -52,11 +54,25 @@ public class Roster extends HttpServlet {
 					resp.getWriter().println("<presence from=\""+ result.getProperty("username") + "\">" +
 												"\n\t<show>" +result.getProperty("show") + "</show>" + 
 												"\n\t<status>" +result.getProperty("status") +"</status>" + 
-										"\n</presence>");
+										"\n</presence>" + result.getProperty("password"));
 			}
 		}
 		catch (NullPointerException e){
 			resp.getWriter().println("Reload");
+		}
+	}
+	
+	
+	public void doPost(HttpServletRequest req, HttpServletResponse resp)
+    		throws IOException {
+		
+		xinxat.server.Server.reset();
+		xinxat.server.Server.addUserToRoom("franhp","marketing");
+		xinxat.server.Server.addUserToRoom("hektor","marketing");
+		
+		ArrayList<String> usersInRoom = xinxat.server.Server.getUsersFromRoom(req.getParameter("room"));
+		for(String user : usersInRoom){
+			resp.getWriter().println("\n" + user + " is in!");
 		}
 	}
 
