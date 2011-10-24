@@ -18,6 +18,7 @@ import org.xml.sax.SAXException;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import xinxat.server.Xmpp;
@@ -39,7 +40,6 @@ public class Server extends HttpServlet {
 	 * 			msg: 	contains the xmpp message
 	 * 			token:	contains the token given by the frontend 
 	 */
-	@SuppressWarnings("deprecation")
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
 		//Read and check if the XMPP xml is correct
@@ -50,10 +50,10 @@ public class Server extends HttpServlet {
 		Query query = new Query("user");
 		query.addFilter("password", Query.FilterOperator.EQUAL, req.getParameter("token"));
 		PreparedQuery pquery = datastore.prepare(query);
-		if(pquery.countEntities() < 1) resp.getWriter().println("Wrong password");
+		if(pquery.countEntities(FetchOptions.Builder.withDefaults()) < 1) resp.getWriter().println("Wrong password");
 		for (Entity user : pquery.asIterable()) {
 			try {
-				if(user.getProperty("username").toString().equals(msg.getOrigin())){
+				if(user.getProperty("username").toString().equals(msg.getSender())){
 					String recipient = null;
 					try {
 						recipient = msg.getRecipient();
@@ -105,15 +105,14 @@ public class Server extends HttpServlet {
 	 * 			to:		contains the requestor's username
 	 * 			token:	contains the token given by the frontend 
 	 */
-    @SuppressWarnings("deprecation")
-	public void doGet(HttpServletRequest req, HttpServletResponse resp)
+    public void doGet(HttpServletRequest req, HttpServletResponse resp)
     		throws IOException {
     	//Check if the user exists
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		Query query = new Query("user");
 		query.addFilter("password", Query.FilterOperator.EQUAL, req.getParameter("token"));
 		PreparedQuery pquery = datastore.prepare(query);
-		if(pquery.countEntities() < 1)
+		if(pquery.countEntities(FetchOptions.Builder.withDefaults()) < 1)
 				resp.getWriter().println("Wrong password");
 		
 		String recipient = req.getParameter("to");

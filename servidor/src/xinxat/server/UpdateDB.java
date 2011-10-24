@@ -7,6 +7,7 @@ package xinxat.server;
  * 
  * @author Fran Hermoso <franhp@franstelecom.com>
  */
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -24,25 +25,22 @@ import org.xml.sax.InputSource;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.FilterOperator;
 
 
 @SuppressWarnings("serial")
 public class UpdateDB extends HttpServlet {
 	
+	/**
+	 * Syncronizes the database from the frontend and the backend
+	 */
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
     		throws IOException {		
 			try {
-
 				DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-
-				//Borrar todo
-				Query q = new Query("user");
-				PreparedQuery pq = datastore.prepare(q);
-				for (Entity result : pq.asIterable()) 
-					datastore.delete(result.getKey());
-				
 				//Ir a buscar usuarios
 				URL url = new URL("http://api.xinxat.com/?users");
 				//URL url = new URL("http://xinxat.com/scripts/api.php?roomlist&xml");
@@ -63,24 +61,35 @@ public class UpdateDB extends HttpServlet {
 				Document documento = db.parse(archivo);
 
 				NodeList nodeLista = documento.getElementsByTagName("user");
-
-
+				
 				for (int s = 0; s < nodeLista.getLength(); s++) {
-						Element element = (Element) nodeLista.item(s);
-						String name = element.getAttribute("nickname");
-						String code = element.getAttribute("code");
-						String show = element.getAttribute("show");
-						String status = element.getAttribute("status");
-						if(status.isEmpty()) status = "offline";
-						String lastonline = element.getAttribute("lastonline");
-						if(lastonline.isEmpty()) lastonline = "0";
+					Element element = (Element) nodeLista.item(s);
+					String name = element.getAttribute("nickname");
+					String code = element.getAttribute("code");
+					
+					Query q = new Query("user");
+					q.addFilter("username", FilterOperator.EQUAL, name);
+					PreparedQuery pq = datastore.prepare(q);
+					
+					//If the user exists, just update the password
+					if(pq.countEntities(FetchOptions.Builder.withDefaults()) >= 1){
+						for (Entity result : pq.asIterable()){
+							if(!result.getProperty("password").equals(code)){
+								result.setProperty("password", code);
+								datastore.put(result);
+							}
+						}
+					}
+					//If the user doesn't exist, create a new one
+					else {
 						Entity user = new Entity("user");
 						user.setProperty("username", name);
 						user.setProperty("password", code);
-						user.setProperty("show", show);
-						user.setProperty("status", status);
-						user.setProperty("lastonline", lastonline);
+						long now = (long)(System.currentTimeMillis() / 1000L);
+						user.setProperty("lastonline", now);
 						datastore.put(user);
+					}
+
 				}
 				
 		  }
@@ -89,7 +98,36 @@ public class UpdateDB extends HttpServlet {
 		  }
 				
 	}
- 
+
+
+	/**
+	 * This method is able to delete all the users from the datastore
+	 * or a single user depending on the parameters:
+	 * 		POST all=true
+	 * 			deletes all the users
+	 * 		POST delete={username}
+	 * 			deletes {username} from the datastore
+	 */
+	public void doPost(HttpServletRequest req, HttpServletResponse resp)
+    		throws IOException {	
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		
+		if("true".equals(req.getParameter("all"))){
+			Query q = new Query("user");
+			PreparedQuery pq = datastore.prepare(q);
+			for (Entity result : pq.asIterable())
+				datastore.delete(result.getKey());
+			resp.getWriter().println("Everything is gone!");
+		} else {
+			
+			Query q = new Query("user");
+			q.addFilter("username", FilterOperator.EQUAL, req.getParameter("delete"));
+			PreparedQuery pq = datastore.prepare(q);
+			for (Entity result : pq.asIterable())
+				datastore.delete(result.getKey());
+			resp.getWriter().println(req.getParameter("delete") + " is gone!");
+		}
+		
+	}
 
 }
