@@ -6,7 +6,6 @@ package xinxat.server;
  * @author Fran Hermoso <franhp@franstelecom.com>
  */
 import java.io.IOException;
-import java.util.ArrayList;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +15,7 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.FilterOperator;
 
 @SuppressWarnings("serial")
 public class Roster extends HttpServlet {
@@ -54,7 +54,7 @@ public class Roster extends HttpServlet {
 					resp.getWriter().println("<presence from=\""+ result.getProperty("username") + "\">" +
 												"\n\t<show>" +result.getProperty("show") + "</show>" + 
 												"\n\t<status>" +result.getProperty("status") +"</status>" + 
-										"\n</presence>" + result.getProperty("password"));
+										"\n</presence>");
 			}
 		}
 		catch (NullPointerException e){
@@ -65,16 +65,38 @@ public class Roster extends HttpServlet {
 	
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
     		throws IOException {
-		
-		xinxat.server.Server.reset();
-		xinxat.server.Server.addUserToRoom("franhp","marketing");
-		xinxat.server.Server.addUserToRoom("hektor","marketing");
-		
-		ArrayList<String> usersInRoom = xinxat.server.Server.getUsersFromRoom(req.getParameter("room"));
-		for(String user : usersInRoom){
-			resp.getWriter().println("\n" + user + " is in!");
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+
+		Query q = new Query("user");
+		PreparedQuery pq = datastore.prepare(q);
+		q.addFilter("username", FilterOperator.EQUAL, req.getParameter("username"));
+		try {
+			for (Entity result : pq.asIterable()) {
+				long comp = 0;
+					try{
+						//If the user hasn't refreshed the lastonline key on the datastore for a long time ...
+						long lastonline = Long.parseLong(result.getProperty("lastonline").toString());
+						long now = (long)(System.currentTimeMillis() / 1000L);
+						comp = now - lastonline;
+					} catch (NumberFormatException e) {
+						resp.getWriter().println("");
+					}
+					//The user is considered to be offline
+					if(comp > time2BeOffline)
+						result.setProperty("show", "offline");
+					
+					resp.getWriter().println("<presence from=\""+ result.getProperty("username") + "\">" +
+												"\n\t<show>" +result.getProperty("show") + "</show>" + 
+												"\n\t<status>" +result.getProperty("status") +"</status>" + 
+										"\n</presence>" + result.getProperty("password"));
+			}
+		}
+		catch (NullPointerException e){
+			resp.getWriter().println("Reload");
 		}
 	}
+	
+    
 
 }
 

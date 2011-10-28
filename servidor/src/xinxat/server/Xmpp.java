@@ -54,12 +54,43 @@ public class Xmpp {
 	}
 	
 	/**
+	 * Returns the type of the message, groupchat or chat
+	 * 
+	 * @return type
+	 * @throws SAXException
+	 * @throws IOException
+	 * @throws ParserConfigurationException
+	 */
+	public String getType() throws SAXException, IOException, ParserConfigurationException {
+		return parseFor("type");
+	}
+	
+	/**
 	 * Returns the whole message
 	 * 
 	 * @return message
 	 */
 	public String getAllMessage(){
 		return this.message;
+	}
+	
+	/**
+	 * Returns the body of the message
+	 * 
+	 * @return body
+	 * @throws SAXException
+	 * @throws IOException
+	 * @throws ParserConfigurationException
+	 */
+	public String getBody()  throws SAXException, IOException, ParserConfigurationException{
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        InputSource is = new InputSource();
+        is.setCharacterStream(new StringReader(this.message));
+
+        org.w3c.dom.Document doc = db.parse(is);
+        org.w3c.dom.NodeList nodes = doc.getElementsByTagName("message");
+		return nodes.item(0).getFirstChild().getTextContent();
 	}
 	
 	/**
