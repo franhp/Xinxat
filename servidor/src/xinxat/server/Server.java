@@ -2,7 +2,7 @@ package xinxat.server;
 
 /**
  * This class represents the main server that listens to every single
- * request and deals with it depending on its destination.
+ * request and deals with it depending on its purpose.
  * 
  * @author Fran Hermoso <franhp@franstelecom.com>
  */
@@ -35,8 +35,16 @@ public class Server extends HttpServlet {
 	/**
 	 * This Map holds a List of users for every channel
 	 */
-	public Map<String, ArrayList<String>> rooms = new HashMap<String, ArrayList<String>>();
+	private static Map<String, ArrayList<String>> rooms = new HashMap<String, ArrayList<String>>();
 	
+	/**
+	 * This Map holds a List of bannned users for every channel
+	 */
+	private static Map<String, ArrayList<String>> bans = new HashMap<String,ArrayList<String>>();
+	
+	/**
+	 * Datastore connection
+	 */
 	DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
 	/**
@@ -56,10 +64,10 @@ public class Server extends HttpServlet {
 		
 		
 		try {
-			//If it is a private chat
-			if(msg.getType().equals("chat")){
-				Entity from = getUserByToken(req.getParameter("token"));
-				if(from != null && from.getProperty("username").toString().equals(msg.getSender())){
+			Entity from = getUserByToken(req.getParameter("token"));
+			if(from != null && msg.getSender().equalsIgnoreCase(from.getProperty("username").toString())){
+				//If it is a private chat
+				if(msg.getType().equals("chat")){
 					String recipient = msg.getRecipient();
 					//Get the Stack if it exists
 					Stack<String> pila_usuari = messageStack.get(recipient);
@@ -81,14 +89,10 @@ public class Server extends HttpServlet {
 				    	resp.getWriter().println("OK");
 
 					}
-					else
-						resp.getWriter().println("Wrong username/password");
 				} 
-			}
-			//If it is a groupchat
-			else if (msg.getType().equals("groupchat")){
-				Entity from = getUserByToken(req.getParameter("token"));
-				if(from != null && msg.getSender().equals(from.getProperty("username"))){
+				
+				//If it is a groupchat
+				else if (msg.getType().equals("groupchat")){
 					String destChannel = msg.getRecipient();
 					ArrayList<String> peopleInRoom = rooms.get(destChannel);
 					for (String user : peopleInRoom){
@@ -113,30 +117,46 @@ public class Server extends HttpServlet {
 				    	else resp.getWriter().println("No user found");
 					}
 				}
-				else resp.getWriter().println("Wrong user/password");
-			}
-			
-			else if(msg.getType().equals("system")){
-				Entity from = getUserByToken(req.getParameter("token"));
-				if(from != null && msg.getSender().equals(from.getProperty("username"))){
+				//If it is a system message
+				else if(msg.getType().equals("system")){
 					String command = msg.getBody();
 					String[] params = command.split(" ");
 					
-					if(params[0].equals("/join"))
-						addUserToRoom(msg.getSender(), params[1]);
+					if(params[0].equals("/join")){
+						ArrayList<String> banned = null;
+						try{
+							banned = bans.get(params[1]);
+						} catch (NullPointerException e){
+							bans.put(params[1], new ArrayList<String>());
+							banned = bans.get(params[1]);
+						} finally {
+							if(!banned.contains(params[1])){
+								addUserToRoom(msg.getSender(), params[1]);
+							}
+							else sendMessage(msg.getSender(), "You are banned from this room");
+						}
+					}
 					else if(params[0].equals("/leave"))
 						deleteUserFromRoom(msg.getSender(), msg.getRecipient());
 					else if(params[0].equals("/list"))
 						resp.getWriter().println(getUsersFromRoom(params[1]));	
 					else if(params[0].equals("/invite"))
 						addUserToRoom(params[1], msg.getRecipient());
-					else if(params[0].equals("/ban"))
+					else if(params[0].equals("/ban")){
+						sendMessage(msg.getRecipient(), params[1] + "was banned because: " + params[2]);
 						deleteUserFromRoom(params[1], msg.getRecipient());
-					else if(params[0].equals("/kick"))
+						ban(params[1],msg.getRecipient());
+					}
+					else if(params[0].equals("/unban")){
+						unban(params[1],msg.getRecipient());
+					}
+					else if(params[0].equals("/kick")){
+						sendMessage(msg.getRecipient(), params[1] + " was kicked because: " + params[2]);
 						deleteUserFromRoom(params[1], msg.getRecipient());
+					}
 				}
-				else resp.getWriter().println("Wrong user/password");
 			}
+			else resp.getWriter().println("Wrong user/password");
 		}
 		catch (SAXException e) {
 			e.printStackTrace();
@@ -146,7 +166,6 @@ public class Server extends HttpServlet {
 
     }
 	
-
 
 	/**
 	 * This servlet outputs the pending messages still on the stack and
@@ -220,25 +239,61 @@ public class Server extends HttpServlet {
 		
     }
     
-	public ArrayList<String> getUsersFromRoom(String room){
+    /**
+     * Creates a room
+     * 
+     * @param name
+     */
+    public static void createRoom(String name){
+    	try{
+    		ArrayList<String> room = rooms.get(name);
+    		if(room!=null)
+    			System.out.println("Room exists");
+    	} catch (NullPointerException e){
+    		rooms.put(name, new ArrayList<String>());
+    	}
+    }
+    
+    /**
+     * Returns a list of the users in a room
+     * 
+     * @param room
+     * @return ArrayList of users
+     */
+	public static ArrayList<String> getUsersFromRoom(String room){
 		return rooms.get(room);
 	}
-
-	public  void addUserToRoom(String user, String room){
+	
+	
+	/**
+	 * Adds a user to a room
+	 * 
+	 * @param user
+	 * @param room
+	 */
+	public static void addUserToRoom(String user, String room){
 		ArrayList<String> users = new ArrayList<String>();
 		try{
 			if(!rooms.get(room).equals(null)){
-				for(String otherUser: rooms.get(room))
-					users.add(otherUser);
+				for(String otherUser: rooms.get(room)){
+					if(!otherUser.equalsIgnoreCase(user))
+						users.add(otherUser);
+				}
 			}
 		} catch (NullPointerException e){
-			System.out.println("no channel yet, creating it");
+			System.out.println("Creating channel");
 		}
 		users.add(user);
 		rooms.put(room, users);
 	}
 	
-	public  void deleteUserFromRoom(String user, String room){
+	/**
+	 * Deletes a user from a room
+	 * 
+	 * @param user
+	 * @param room 
+	 */
+	public static void deleteUserFromRoom(String user, String room){
 		ArrayList<String> users = new ArrayList<String>();
 		for(String otherUser: rooms.get(room))
 			if(!otherUser.equals(user))
@@ -246,30 +301,95 @@ public class Server extends HttpServlet {
 		rooms.put(room, users);
 	}
 	
-	public  void reset() {
+	/**
+	 * Deletes all the rooms
+	 */
+	public static void reset() {
 		rooms.clear();
 	}
 
 	/**
 	 * Checks if the user exists on the datastore
 	 * 
-	 * @param token
-	 * @return user
+	 * @param token password created by the frontend
+	 * @return User's entity
 	 */
 	public Entity getUserByToken(String token){
 		//Check if the token matches the user in the from field of the XMPP
 		Query query = new Query("user");
 		query.addFilter("password", Query.FilterOperator.EQUAL, token);
 		PreparedQuery pquery = datastore.prepare(query);
-		if(pquery.countEntities(FetchOptions.Builder.withDefaults()) < 1) {
+		if(pquery.countEntities(FetchOptions.Builder.withDefaults()) >= 1) {
 			for(Entity user : pquery.asIterable()){
 				return user;
 			}
 		}
 		return null;
-
-
 	}
+	
+	/**
+	 * Bans a user from a room
+	 * 
+	 * @param who the user to be banned
+	 * @param where the room where it will be banned
+	 */
+	public static void ban(String who, String where) {
+		ArrayList<String> banned = null;
+		try{
+			banned = bans.get(where);
+			if(!banned.contains(who))
+				banned.add(who);
+		} catch (NullPointerException e){
+			bans.put(where, new ArrayList<String>());
+			banned = bans.get(where);
+			banned.add(who);
+		} finally {
+			bans.put(where, banned);
+		}
+		
+	}
+	
+
+	/**
+	 * Unbans a user from a room
+	 * 
+	 * @param who the user to be unbanned
+	 * @param where the room where it will be unbanned
+	 */
+	public static void unban(String who, String where) {
+		ArrayList<String> banned = bans.get(where);
+		banned.remove(who);
+		bans.put(where, banned);
+		
+	}
+
+
+
+
+	/**
+	 * Sends a message to a user as system
+	 * 
+	 * @param to the recipient user
+	 * @param message the actual message
+	 */
+	private void sendMessage(String to, String message) {
+		String msg = "<message to=\"" + to + "\" type=\"system\">" +
+							"<body>" + message + "</body>" +
+						"</message>";
+		
+		ArrayList<String> peopleInRoom = rooms.get(to);
+		for (String user : peopleInRoom){
+			Stack<String> pila_usuari = messageStack.get(user);
+	    	//Now that we have a Stack, fill it!
+	    	if(pila_usuari != null){
+		    	pila_usuari.push(msg);
+		    	messageStack.put(user, pila_usuari);
+	    	}
+		}
+		
+	}
+
+
 
 
 }

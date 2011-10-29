@@ -43,7 +43,6 @@ public class UpdateDB extends HttpServlet {
 				DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 				//Ir a buscar usuarios
 				URL url = new URL("http://api.xinxat.com/?users");
-				//URL url = new URL("http://api.xinxat.com/?roomlist");
 				BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
 				String entrada = "";
 				String cadena = "";
