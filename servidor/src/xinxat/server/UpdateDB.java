@@ -39,7 +39,7 @@ public class UpdateDB extends HttpServlet {
 	/**
 	 * Logger
 	 */
-	private static final Logger log = Logger.getLogger(Server.class.getName());
+	private static final Logger log = Logger.getLogger(UpdateDB.class.getName());
 	
 	/**
 	 * Syncronizes the database from the frontend and the backend
