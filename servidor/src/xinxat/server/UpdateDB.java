@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.URL;
+import java.util.logging.Logger;
+
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,6 +35,11 @@ import com.google.appengine.api.datastore.Query.FilterOperator;
 
 @SuppressWarnings("serial")
 public class UpdateDB extends HttpServlet {
+	
+	/**
+	 * Logger
+	 */
+	private static final Logger log = Logger.getLogger(Server.class.getName());
 	
 	/**
 	 * Syncronizes the database from the frontend and the backend
@@ -117,14 +124,15 @@ public class UpdateDB extends HttpServlet {
 			for (Entity result : pq.asIterable())
 				datastore.delete(result.getKey());
 			resp.getWriter().println("Everything is gone!");
+			log.warning("Someone just deleted all the users in the database");
 		} else {
-			
 			Query q = new Query("user");
 			q.addFilter("username", FilterOperator.EQUAL, req.getParameter("delete"));
 			PreparedQuery pq = datastore.prepare(q);
 			for (Entity result : pq.asIterable())
 				datastore.delete(result.getKey());
 			resp.getWriter().println(req.getParameter("delete") + " is gone!");
+			log.warning("Someone just deleted " + req.getParameter("delete") + " from the database");
 		}
 		
 	}

@@ -8,9 +8,13 @@ package xinxat.server;
  */
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
+import java.util.logging.Logger;
+
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,7 +27,6 @@ import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import xinxat.server.Xmpp;
-
 
 @SuppressWarnings("serial")
 public class Server extends HttpServlet {
@@ -48,6 +51,11 @@ public class Server extends HttpServlet {
 	DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
 	/**
+	 * Logger
+	 */
+	private static final Logger log = Logger.getLogger(Server.class.getName());
+	
+	/**
 	 * This Servlet receives all the messages and puts them on the stack.
 	 * 
 	 * In order to send a message the user must send a POST to the following URL
@@ -59,10 +67,10 @@ public class Server extends HttpServlet {
 	 */
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
-		//Read and check if the XMPP xml is correct
+		//Read the XMPP
 		Xmpp msg = new Xmpp(req.getParameter("msg"));
 		
-		
+		//Process it
 		try {
 			Entity from = getUserByToken(req.getParameter("token"));
 			if(from != null && msg.getSender().equalsIgnoreCase(from.getProperty("username").toString())){
@@ -80,8 +88,9 @@ public class Server extends HttpServlet {
 							String username = result.getProperty("username").toString();
 							if(username != null)
 								pila_usuari = new Stack<String>();
-						}	
-			    	}
+						}
+						
+			    	} 
 			    	//Now that we have a Stack, fill it!
 			    	if(pila_usuari != null){
 				    	pila_usuari.push(msg.getAllMessage());
@@ -89,12 +98,15 @@ public class Server extends HttpServlet {
 				    	resp.getWriter().println("OK");
 
 					}
+			    	else {
+			    		resp.getWriter().println("NOEXISTS");
+			    	}
 				} 
 				
 				//If it is a groupchat
 				else if (msg.getType().equals("groupchat")){
 					String destChannel = msg.getRecipient();
-					ArrayList<String> peopleInRoom = rooms.get(destChannel);
+					ArrayList<String> peopleInRoom = getUsersFromRoom(destChannel);
 					for (String user : peopleInRoom){
 						Stack<String> pila_usuari = messageStack.get(user);
 						//If it doesn't exist, check if the user should have an stack
@@ -114,7 +126,9 @@ public class Server extends HttpServlet {
 					    	messageStack.put(user, pila_usuari);
 					    	resp.getWriter().println("OK");
 				    	}
-				    	else resp.getWriter().println("No user found");
+				    	else {
+				    		resp.getWriter().println("NOEXISTS");
+				    	}
 					}
 				}
 				//If it is a system message
@@ -122,41 +136,70 @@ public class Server extends HttpServlet {
 					String command = msg.getBody();
 					String[] params = command.split(" ");
 					
+					// /join room
 					if(params[0].equals("/join")){
-						ArrayList<String> banned = null;
-						try{
-							banned = bans.get(params[1]);
-						} catch (NullPointerException e){
-							bans.put(params[1], new ArrayList<String>());
-							banned = bans.get(params[1]);
-						} finally {
-							if(!banned.contains(params[1])){
+						if(roomIsPrivate(params[1])){
+							if(!isBanned(msg.getSender(), params[1])){
 								addUserToRoom(msg.getSender(), params[1]);
+								resp.getWriter().println("OK");
 							}
-							else sendMessage(msg.getSender(), "You are banned from this room");
+							else if(!isAllowedToJoin(msg.getSender(),params[1])){
+								log.info("[" + msg.getSender() + "] was trying to join [" + params[1] + "+] but couldn't");
+								sendMessage(msg.getSender(), "You cannot enter this room");
+							}
 						}
+						else {
+							addUserToRoom(msg.getSender(), params[1]);
+							resp.getWriter().println("OK");
+						}
+						
 					}
-					else if(params[0].equals("/leave"))
+					// /leave
+					else if(params[0].equals("/leave")){
 						deleteUserFromRoom(msg.getSender(), msg.getRecipient());
-					else if(params[0].equals("/list"))
-						resp.getWriter().println(getUsersFromRoom(params[1]));	
-					else if(params[0].equals("/invite"))
+						resp.getWriter().println("OK");
+					}
+					// /list
+					else if(params[0].equals("/list")){
+						resp.getWriter().println(getUsersFromRoom(params[1]));
+					}
+					// /invite
+					else if(params[0].equals("/invite")){
 						addUserToRoom(params[1], msg.getRecipient());
+						resp.getWriter().println("OK");
+					}
+					// /ban username reason
 					else if(params[0].equals("/ban")){
 						sendMessage(msg.getRecipient(), params[1] + "was banned because: " + params[2]);
 						deleteUserFromRoom(params[1], msg.getRecipient());
 						ban(params[1],msg.getRecipient());
 					}
+					// /unban username
 					else if(params[0].equals("/unban")){
 						unban(params[1],msg.getRecipient());
+						resp.getWriter().println("OK");
 					}
+					else if(params[0].equals("/banlist")){
+						for (String banned : banlist(msg.getRecipient())){
+							resp.getWriter().println("\n" + banned + "is banned");
+						}
+					}
+					// /kick username reason
 					else if(params[0].equals("/kick")){
 						sendMessage(msg.getRecipient(), params[1] + " was kicked because: " + params[2]);
 						deleteUserFromRoom(params[1], msg.getRecipient());
+						resp.getWriter().println("OK");
 					}
+					// /info username
+					else if(params[0].equals("/info")){
+						sendMessage(msg.getSender(), userInfo(params[1]));
+					}
+					
 				}
 			}
-			else resp.getWriter().println("Wrong user/password");
+			else {
+				resp.getWriter().println("WRONG");
+			}
 		}
 		catch (SAXException e) {
 			e.printStackTrace();
@@ -167,6 +210,7 @@ public class Server extends HttpServlet {
     }
 	
 
+
 	/**
 	 * This servlet outputs the pending messages still on the stack and
 	 * also sets the presence
@@ -174,7 +218,7 @@ public class Server extends HttpServlet {
 	 * In order to receive the messages the user must send a GET request to the following URL:
 	 * 			http://projecte-xinxat.appspot.com/messages
 	 * 			status: contains the status message
-	 * 			show:	contains one of the following: chat, dnd, away
+	 * 			show:	contains one of the following: chat, dnd, away, offline
 	 * 			to:		contains the requestor's username
 	 * 			token:	contains the token given by the frontend 
 	 */
@@ -191,22 +235,24 @@ public class Server extends HttpServlet {
 			String show = req.getParameter("show");
 			String status = req.getParameter("status");
 			
-			Query q = new Query("user");
-			q.addFilter("username", Query.FilterOperator.EQUAL, recipient);
-			PreparedQuery pq = datastore.prepare(q);
-			
-			//Write the presence on the datastore
-			Entity user = new Entity("user");
-			for (Entity result : pq.asIterable()) {
-				user.setProperty("username", result.getProperty("username"));
-				user.setProperty("password", result.getProperty("password"));
-				user.setProperty("show", show);
-				user.setProperty("status", status);
-				long lastonline = System.currentTimeMillis() / 1000L;
-				user.setProperty("lastonline", lastonline);
-				datastore.delete(result.getKey());
+			if(show != null && status != null){
+				Query q = new Query("user");
+				q.addFilter("username", Query.FilterOperator.EQUAL, recipient);
+				PreparedQuery pq = datastore.prepare(q);
+				
+				//Write the presence on the datastore
+				Entity user = new Entity("user");
+				for (Entity result : pq.asIterable()) {
+					user.setProperty("username", result.getProperty("username"));
+					user.setProperty("password", result.getProperty("password"));
+					user.setProperty("show", show);
+					user.setProperty("status", status);
+					long lastonline = System.currentTimeMillis() / 1000L;
+					user.setProperty("lastonline", lastonline);
+					datastore.delete(result.getKey());
+				}
+				datastore.put(user);
 			}
-			datastore.put(user);
 			
 			//Return presence if no messages are unread
 	    	if(missatges.isEmpty()){
@@ -236,22 +282,9 @@ public class Server extends HttpServlet {
 		    }
 
 		}
-		
-    }
-    
-    /**
-     * Creates a room
-     * 
-     * @param name
-     */
-    public static void createRoom(String name){
-    	try{
-    		ArrayList<String> room = rooms.get(name);
-    		if(room!=null)
-    			System.out.println("Room exists");
-    	} catch (NullPointerException e){
-    		rooms.put(name, new ArrayList<String>());
-    	}
+		else {
+			resp.getWriter().println("WRONG");
+		}
     }
     
     /**
@@ -281,10 +314,11 @@ public class Server extends HttpServlet {
 				}
 			}
 		} catch (NullPointerException e){
-			System.out.println("Creating channel");
+			log.info("Created room [" + room + "]");
 		}
 		users.add(user);
 		rooms.put(room, users);
+		log.info("[" + user + "] joined [" + room + "]");
 	}
 	
 	/**
@@ -299,13 +333,15 @@ public class Server extends HttpServlet {
 			if(!otherUser.equals(user))
 				users.add(otherUser);
 		rooms.put(room, users);
+		log.info("[" + user + "] left [" + room + "]");
 	}
 	
 	/**
 	 * Deletes all the rooms
 	 */
-	public static void reset() {
+	public static void resetRooms() {
 		rooms.clear();
+		log.warning("Rooms have been reset");
 	}
 
 	/**
@@ -315,7 +351,6 @@ public class Server extends HttpServlet {
 	 * @return User's entity
 	 */
 	public Entity getUserByToken(String token){
-		//Check if the token matches the user in the from field of the XMPP
 		Query query = new Query("user");
 		query.addFilter("password", Query.FilterOperator.EQUAL, token);
 		PreparedQuery pquery = datastore.prepare(query);
@@ -324,6 +359,7 @@ public class Server extends HttpServlet {
 				return user;
 			}
 		}
+		log.warning("Failed auth for token [" + token + "]" );
 		return null;
 	}
 	
@@ -345,6 +381,7 @@ public class Server extends HttpServlet {
 			banned.add(who);
 		} finally {
 			bans.put(where, banned);
+			log.info("[" + who + "] was banned from [" + where + "]");
 		}
 		
 	}
@@ -360,7 +397,23 @@ public class Server extends HttpServlet {
 		ArrayList<String> banned = bans.get(where);
 		banned.remove(who);
 		bans.put(where, banned);
+		log.info("[" + who + "] was unbanned from [" + where + "]");
 		
+	}
+	
+	/**
+	 * List the rooms in the server
+	 * @return room list
+	 */
+	public static ArrayList<String> listRooms(){
+		ArrayList<String> list = new ArrayList<String>();
+		Set<String> set = rooms.keySet();
+		String[] strkeys = set.toArray(new String[set.size()]);
+		Arrays.sort(strkeys);
+		for(int i = 0; i < set.size(); i++){
+			list.add(strkeys[i]);
+		}
+		return list;
 	}
 
 
@@ -373,8 +426,8 @@ public class Server extends HttpServlet {
 	 * @param message the actual message
 	 */
 	private void sendMessage(String to, String message) {
-		String msg = "<message to=\"" + to + "\" type=\"system\">" +
-							"<body>" + message + "</body>" +
+		String msg = "<message to=\"" + to + "\" type=\"system\">\n" +
+							"<body>" + message + "</body>\n" +
 						"</message>";
 		
 		ArrayList<String> peopleInRoom = rooms.get(to);
@@ -389,6 +442,89 @@ public class Server extends HttpServlet {
 		
 	}
 
+	/**
+	 * Lists the rooms that a user is in
+	 * 
+	 * @param username
+	 * @return roomlist
+	 */
+	private String userInfo(String username) {
+		String roomlist = "";
+		ArrayList<String> rooms = listRooms();
+		for(String room : rooms){
+			ArrayList<String> users = getUsersFromRoom(room);
+			for(String user: users){
+				if(user.equals(username)){
+					roomlist += room + ",";
+				}
+			}
+		}
+		return "User " + username + " can be found in: " + roomlist;
+	}
+
+	
+	/**
+	 * Shows a list of bans from a room
+	 * 
+	 * @param room
+	 * @return
+	 */
+	private ArrayList<String> banlist(String room) {
+		return bans.get(room);
+	}
+
+
+
+	/**
+	 * Checks if a user is banned from a certain room
+	 * 
+	 * @param user
+	 * @param room
+	 * @return boolean
+	 */
+	private boolean isBanned(String user, String room) {
+		ArrayList<String> banned = null;
+		try{
+			banned = bans.get(room);
+		} catch (NullPointerException e){
+			bans.put(room, new ArrayList<String>());
+			banned = bans.get(room);
+		} 
+
+		if(banned.contains(user)){
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	
+	/**
+	 * Returns true if the room name starts with #
+	 * @param room
+	 * @return
+	 */
+	private boolean roomIsPrivate(String room) {
+		if(room.startsWith("#")) return true;
+		else return false;
+	}
+
+	/**
+	 * Shows if a user has the permission to enter a room
+	 * 
+	 * @param user
+	 * @param room
+	 * @return
+	 */
+	private boolean isAllowedToJoin(String user, String room){
+		ArrayList<String> roomUsers = rooms.get(room);
+		if(roomUsers.contains(user)) return true;
+		else return false;
+		
+	}
+	
+	
 
 
 

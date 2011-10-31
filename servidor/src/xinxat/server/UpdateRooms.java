@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.URL;
+import java.util.ArrayList;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -25,49 +26,75 @@ public class UpdateRooms extends HttpServlet {
     		throws IOException {
 		
 		try {
-				//Ir a buscar usuarios
-				URL url = new URL("http://api.xinxat.com/?roomlist");
-				BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
-				String entrada = "";
-				String cadena = "";
+			//Cleanup
+			xinxat.server.Server.resetRooms();
+			//Ir a buscar usuarios
+			URL url = new URL("http://api.xinxat.com/?roomlist");
+			BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
+			String entrada = "";
+			String cadena = "";
 
-				while ((entrada = br.readLine()) != null){
-					cadena += entrada;
-				}
+			while ((entrada = br.readLine()) != null){
+				cadena += entrada;
+			}
 
-				DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-				DocumentBuilder db = dbf.newDocumentBuilder();
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
 
-				InputSource archivo = new InputSource();
-				archivo.setCharacterStream(new StringReader(cadena)); 
+			InputSource archivo = new InputSource();
+			archivo.setCharacterStream(new StringReader(cadena)); 
 
-				Document documento = db.parse(archivo);
+			Document documento = db.parse(archivo);
 
-				NodeList nodeLista = documento.getElementsByTagName("room");
+			NodeList nodeLista = documento.getElementsByTagName("room");
+			
+			for (int s = 0; s < nodeLista.getLength(); s++) {
+				Element element = (Element) nodeLista.item(s);
+				String room = element.getAttribute("name");
+
+				NodeList secondNodeList = element.getElementsByTagName("users");
+				for(int i = 0; i < secondNodeList.getLength(); i++){
+					Element secondElement = (Element)secondNodeList.item(i);
+					NodeList thirdNodeList = secondElement.getElementsByTagName("user");
+					for(int y = 0; y < thirdNodeList.getLength(); y++){
+						Element userElement = (Element)thirdNodeList.item(y);
 				
-				for (int s = 0; s < nodeLista.getLength(); s++) {
-					Element element = (Element) nodeLista.item(s);
-					String room = element.getAttribute("name");
+						String user = userElement.getAttribute("nickname");
+						String state = userElement.getAttribute("state");
 					
-					xinxat.server.Server.createRoom(room);
-					
-					NodeList secondNodeList = element.getFirstChild().getChildNodes();
-					for(int i = 0; i< secondNodeList.getLength(); i++){
-						Element secondElement = (Element)secondNodeList.item(i);
-						String user = secondElement.getAttribute("nickname");
-						String state = secondElement.getAttribute("state");
-						
-						if("1".equals(state)) xinxat.server.Server.addUserToRoom(user, room);
-						else if("-1".equals(state)) xinxat.server.Server.ban(user, room);
+						if("1".equals(state)) {
+							xinxat.server.Server.addUserToRoom(user, room);
+							resp.getWriter().println("\nAdded " + user + " to " + room);
+						}
+						else if("-1".equals(state)){
+							xinxat.server.Server.ban(user, room);
+						}
 					}
-
 				}
+
+			}
 				
 		  }
 		  catch (Exception e) {
 		    	e.printStackTrace();
 		  }
 				
+	}
+	
+	public void doPost(HttpServletRequest req, HttpServletResponse resp)
+    		throws IOException {
+		String destroy = req.getParameter("destroy");
+		if("yes".equals(destroy)){
+			ArrayList<String> rooms = xinxat.server.Server.listRooms();
+			for(String room : rooms){
+				resp.getWriter().println("\n-" + room);
+				ArrayList<String> users = xinxat.server.Server.getUsersFromRoom(room);
+				for(String user: users){
+					resp.getWriter().println("\n--" + user);
+				}
+			}
+			xinxat.server.Server.resetRooms();
+		}
 	}
 	
 	
