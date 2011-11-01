@@ -9,6 +9,7 @@ package xinxat.server;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -46,6 +47,11 @@ public class Server extends HttpServlet {
 	private static Map<String, ArrayList<String>> bans = new HashMap<String,ArrayList<String>>();
 	
 	/**
+	 * Antispam  system
+	 */
+	private static Map<String, ArrayList<Date>> antispam = new HashMap<String,ArrayList<Date>>();
+	
+	/**
 	 * Datastore connection
 	 */
 	DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
@@ -54,6 +60,11 @@ public class Server extends HttpServlet {
 	 * Logger
 	 */
 	private static final Logger log = Logger.getLogger(Server.class.getName());
+
+	/**
+	 * Number of miliseconds it takes someone to be an spammer
+	 */
+	private static final long spammerSpan = 30000;
 	
 	/**
 	 * This Servlet receives all the messages and puts them on the stack.
@@ -73,128 +84,139 @@ public class Server extends HttpServlet {
 		//Process it
 		try {
 			Entity from = getUserByToken(req.getParameter("token"));
-			if(from != null && msg.getSender().equalsIgnoreCase(from.getProperty("username").toString())){
-				//If it is a private chat
-				if(msg.getType().equals("chat")){
-					String recipient = msg.getRecipient();
-					//Get the Stack if it exists
-					Stack<String> pila_usuari = messageStack.get(recipient);
-					//If it doesn't exist, check if the user should have an stack
-			    	if(pila_usuari == null) {
-			    		Query q = new Query("user");
-			    		q.addFilter("username", Query.FilterOperator.EQUAL, recipient);
-						PreparedQuery pq = datastore.prepare(q);
-						for (Entity result : pq.asIterable()) {
-							String username = result.getProperty("username").toString();
-							if(username != null)
-								pila_usuari = new Stack<String>();
-						}
-						
-			    	} 
-			    	//Now that we have a Stack, fill it!
-			    	if(pila_usuari != null){
-				    	pila_usuari.push(msg.getAllMessage());
-				    	messageStack.put(recipient, pila_usuari);
-				    	resp.getWriter().println("OK");
-
-					}
-			    	else {
-			    		resp.getWriter().println("NOEXISTS");
-			    	}
-				} 
+			if(from != null 
+					&& 
+					msg.getSender().equalsIgnoreCase(from.getProperty("username").toString())){
 				
-				//If it is a groupchat
-				else if (msg.getType().equals("groupchat")){
-					String destChannel = msg.getRecipient();
-					ArrayList<String> peopleInRoom = getUsersFromRoom(destChannel);
-					for (String user : peopleInRoom){
-						Stack<String> pila_usuari = messageStack.get(user);
+				//What if the user is spamming?
+				updateSpammerCount(from.getProperty("username").toString());
+				if(!isSpammer(from.getProperty("username").toString())){
+						
+					//If it is a private chat
+					if(msg.getType().equals("chat")){
+						String recipient = msg.getRecipient();
+						//Get the Stack if it exists
+						Stack<String> pila_usuari = messageStack.get(recipient);
 						//If it doesn't exist, check if the user should have an stack
 				    	if(pila_usuari == null) {
 				    		Query q = new Query("user");
-				    		q.addFilter("username", Query.FilterOperator.EQUAL, user);
+				    		q.addFilter("username", Query.FilterOperator.EQUAL, recipient);
 							PreparedQuery pq = datastore.prepare(q);
 							for (Entity result : pq.asIterable()) {
 								String username = result.getProperty("username").toString();
 								if(username != null)
 									pila_usuari = new Stack<String>();
-							}	
-				    	}
+							}
+							
+				    	} 
 				    	//Now that we have a Stack, fill it!
 				    	if(pila_usuari != null){
 					    	pila_usuari.push(msg.getAllMessage());
-					    	messageStack.put(user, pila_usuari);
+					    	messageStack.put(recipient, pila_usuari);
 					    	resp.getWriter().println("OK");
-				    	}
+	
+						}
 				    	else {
 				    		resp.getWriter().println("NOEXISTS");
 				    	}
-					}
-				}
-				//If it is a system message
-				else if(msg.getType().equals("system")){
-					String command = msg.getBody();
-					String[] params = command.split(" ");
+					} 
 					
-					// /join room
-					if(params[0].equals("/join")){
-						if(roomIsPrivate(params[1])){
-							if(!isBanned(msg.getSender(), params[1])){
+					//If it is a groupchat
+					else if (msg.getType().equals("groupchat")){
+						String destChannel = msg.getRecipient();
+						ArrayList<String> peopleInRoom = getUsersFromRoom(destChannel);
+						for (String user : peopleInRoom){
+							Stack<String> pila_usuari = messageStack.get(user);
+							//If it doesn't exist, check if the user should have an stack
+					    	if(pila_usuari == null) {
+					    		Query q = new Query("user");
+					    		q.addFilter("username", Query.FilterOperator.EQUAL, user);
+								PreparedQuery pq = datastore.prepare(q);
+								for (Entity result : pq.asIterable()) {
+									String username = result.getProperty("username").toString();
+									if(username != null)
+										pila_usuari = new Stack<String>();
+								}	
+					    	}
+					    	//Now that we have a Stack, fill it!
+					    	if(pila_usuari != null){
+						    	pila_usuari.push(msg.getAllMessage());
+						    	messageStack.put(user, pila_usuari);
+						    	resp.getWriter().println("OK");
+					    	}
+					    	else {
+					    		resp.getWriter().println("NOEXISTS");
+					    	}
+						}
+					}
+					//If it is a system message
+					else if(msg.getType().equals("system")){
+						String command = msg.getBody();
+						String[] params = command.split(" ");
+						
+						// /join room
+						if(params[0].equals("/join")){
+							if(roomIsPrivate(params[1])){
+								if(!isBanned(msg.getSender(), params[1])){
+									addUserToRoom(msg.getSender(), params[1]);
+									resp.getWriter().println("OK");
+								}
+								else if(!isAllowedToJoin(msg.getSender(),params[1])){
+									log.info("[" + msg.getSender() + "] was trying to join [" + params[1] + "+] but couldn't");
+									sendMessage(msg.getSender(), "You cannot enter this room");
+								}
+							}
+							else {
 								addUserToRoom(msg.getSender(), params[1]);
 								resp.getWriter().println("OK");
 							}
-							else if(!isAllowedToJoin(msg.getSender(),params[1])){
-								log.info("[" + msg.getSender() + "] was trying to join [" + params[1] + "+] but couldn't");
-								sendMessage(msg.getSender(), "You cannot enter this room");
+							
+						}
+						// /leave
+						else if(params[0].equals("/leave")){
+							deleteUserFromRoom(msg.getSender(), msg.getRecipient());
+							resp.getWriter().println("OK");
+						}
+						// /list
+						else if(params[0].equals("/list")){
+							resp.getWriter().println(getUsersFromRoom(params[1]));
+						}
+						// /invite
+						else if(params[0].equals("/invite")){
+							addUserToRoom(params[1], msg.getRecipient());
+							resp.getWriter().println("OK");
+						}
+						// /ban username reason
+						else if(params[0].equals("/ban")){
+							sendMessage(msg.getRecipient(), params[1] + "was banned because: " + params[2]);
+							deleteUserFromRoom(params[1], msg.getRecipient());
+							ban(params[1],msg.getRecipient());
+						}
+						// /unban username
+						else if(params[0].equals("/unban")){
+							unban(params[1],msg.getRecipient());
+							resp.getWriter().println("OK");
+						}
+						else if(params[0].equals("/banlist")){
+							for (String banned : banlist(msg.getRecipient())){
+								resp.getWriter().println("\n" + banned + "is banned");
 							}
 						}
-						else {
-							addUserToRoom(msg.getSender(), params[1]);
+						// /kick username reason
+						else if(params[0].equals("/kick")){
+							sendMessage(msg.getRecipient(), params[1] + " was kicked because: " + params[2]);
+							deleteUserFromRoom(params[1], msg.getRecipient());
 							resp.getWriter().println("OK");
+						}
+						// /info username
+						else if(params[0].equals("/info")){
+							sendMessage(msg.getSender(), userInfo(params[1]));
 						}
 						
 					}
-					// /leave
-					else if(params[0].equals("/leave")){
-						deleteUserFromRoom(msg.getSender(), msg.getRecipient());
-						resp.getWriter().println("OK");
-					}
-					// /list
-					else if(params[0].equals("/list")){
-						resp.getWriter().println(getUsersFromRoom(params[1]));
-					}
-					// /invite
-					else if(params[0].equals("/invite")){
-						addUserToRoom(params[1], msg.getRecipient());
-						resp.getWriter().println("OK");
-					}
-					// /ban username reason
-					else if(params[0].equals("/ban")){
-						sendMessage(msg.getRecipient(), params[1] + "was banned because: " + params[2]);
-						deleteUserFromRoom(params[1], msg.getRecipient());
-						ban(params[1],msg.getRecipient());
-					}
-					// /unban username
-					else if(params[0].equals("/unban")){
-						unban(params[1],msg.getRecipient());
-						resp.getWriter().println("OK");
-					}
-					else if(params[0].equals("/banlist")){
-						for (String banned : banlist(msg.getRecipient())){
-							resp.getWriter().println("\n" + banned + "is banned");
-						}
-					}
-					// /kick username reason
-					else if(params[0].equals("/kick")){
-						sendMessage(msg.getRecipient(), params[1] + " was kicked because: " + params[2]);
-						deleteUserFromRoom(params[1], msg.getRecipient());
-						resp.getWriter().println("OK");
-					}
-					// /info username
-					else if(params[0].equals("/info")){
-						sendMessage(msg.getSender(), userInfo(params[1]));
-					}
-					
+				}
+				else {
+					resp.getWriter().println("SPAM");
 				}
 			}
 			else {
@@ -217,8 +239,8 @@ public class Server extends HttpServlet {
 	 * 
 	 * In order to receive the messages the user must send a GET request to the following URL:
 	 * 			http://projecte-xinxat.appspot.com/messages
-	 * 			status: contains the status message
-	 * 			show:	contains one of the following: chat, dnd, away, offline
+	 * 			status: contains the status message (optional)
+	 * 			show:	contains one of the following: chat, dnd, away, offline (optional)
 	 * 			to:		contains the requestor's username
 	 * 			token:	contains the token given by the frontend 
 	 */
@@ -524,7 +546,65 @@ public class Server extends HttpServlet {
 		
 	}
 	
-	
+
+	/**
+	 * Updates the spammer count of the user
+	 * 
+	 * @param username
+	 */
+	private void updateSpammerCount(String username) {
+		ArrayList<Date> times = antispam.get(username);
+		try {
+			ArrayList<Date> timesResult = new ArrayList<Date>();
+			timesResult.add(new Date());
+			if(times.size() > 5){
+				for(int i = 0; i<5; i++){
+					timesResult.add(times.get(i));
+				}
+			}
+			else {
+				timesResult.addAll(times);
+			}
+			antispam.put(username, timesResult);
+		}
+			catch (NullPointerException e)
+		{
+			ArrayList<Date> time = new ArrayList<Date>();
+			time.add(new Date());
+			if(times != null) time.addAll(times);
+			antispam.put(username, time);
+		}
+				
+		
+	}
+
+
+	/**
+	 * Defines if the user is a spammer or not
+	 * @param user
+	 * @return
+	 */
+	private boolean isSpammer(String user) {
+		try{
+			ArrayList<Date> times = antispam.get(user);
+			Long first = times.get(0).getTime();
+			Long last = times.get(5).getTime();
+			System.out.println("First: " + first + " \nLast: " + last + "\nDiff de:" + (first-last));
+			if((first-last) < spammerSpan) {
+				log.warning("[" + user + "] is an spammer!");
+				return true;
+			}
+			else return false;
+		} catch (NullPointerException e ){
+			return false;
+		} catch (IndexOutOfBoundsException e){
+			return false;
+		}
+		
+
+	}
+
+
 
 
 
