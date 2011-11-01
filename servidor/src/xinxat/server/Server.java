@@ -589,9 +589,8 @@ public class Server extends HttpServlet {
 			ArrayList<Date> times = antispam.get(user);
 			Long first = times.get(0).getTime();
 			Long last = times.get(5).getTime();
-			System.out.println("First: " + first + " \nLast: " + last + "\nDiff de:" + (first-last));
 			if((first-last) < spammerSpan) {
-				log.warning("[" + user + "] is an spammer!");
+				log.warning("[" + user + "] is spamming!");
 				return true;
 			}
 			else return false;
