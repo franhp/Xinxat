@@ -6,10 +6,31 @@
          xmlns="http://java.sun.com/xml/ns/javaee">
 
   <!-- Servlets -->
+ <servlet>
+  <servlet-name>test</servlet-name>
+    <servlet-class>xinxat.test.ServerTest</servlet-class>
+  </servlet>
   
-  updateUsers
+  <servlet-mapping>
+    <servlet-name>test</servlet-name>
+    <url-pattern>/test</url-pattern>
+  </servlet-mapping>
   
-    <servlet>
+ 
+ 
+ 
+  
+ <servlet>
+  <servlet-name>updateRooms</servlet-name>
+    <servlet-class>xinxat.server.UpdateRooms</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>updateRooms</servlet-name>
+    <url-pattern>/updateRooms</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
     <servlet-name>updateDB</servlet-name>
     <servlet-class>xinxat.server.UpdateDB</servlet-class>
   </servlet>

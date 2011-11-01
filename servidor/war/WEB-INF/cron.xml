@@ -2,7 +2,12 @@
 <cronentries>
   <cron>
     <url>/updateDB</url>
-    <description>Updates the users database using the JSON from xinxat.com</description>
-    <schedule>every 1 mins</schedule>
+    <description>Updates the users database using the XML from api.xinxat.com</description>
+    <schedule>every 2 mins</schedule>
+  </cron>
+  <cron>
+    <url>/updateRooms</url>
+    <description>Updates the rooms using the XML from api.xinxat.com</description>
+    <schedule>every 12 hours</schedule>
   </cron>
 </cronentries>

@@ -25,6 +25,27 @@ public class UpdateRooms extends HttpServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
     		throws IOException {
 		
+		doUpdate();
+				
+	}
+	
+	public void doPost(HttpServletRequest req, HttpServletResponse resp)
+    		throws IOException {
+		String destroy = req.getParameter("destroy");
+		if("yes".equals(destroy)){
+			ArrayList<String> rooms = xinxat.server.Server.listRooms();
+			for(String room : rooms){
+				resp.getWriter().println("\n-" + room);
+				ArrayList<String> users = xinxat.server.Server.getUsersFromRoom(room);
+				for(String user: users){
+					resp.getWriter().println("\n--" + user);
+				}
+			}
+			xinxat.server.Server.resetRooms();
+		}
+	}
+	
+	public static void doUpdate(){
 		try {
 			//Cleanup
 			xinxat.server.Server.resetRooms();
@@ -64,7 +85,6 @@ public class UpdateRooms extends HttpServlet {
 					
 						if("1".equals(state)) {
 							xinxat.server.Server.addUserToRoom(user, room);
-							resp.getWriter().println("\nAdded " + user + " to " + room);
 						}
 						else if("-1".equals(state)){
 							xinxat.server.Server.ban(user, room);
@@ -78,25 +98,7 @@ public class UpdateRooms extends HttpServlet {
 		  catch (Exception e) {
 		    	e.printStackTrace();
 		  }
-				
 	}
-	
-	public void doPost(HttpServletRequest req, HttpServletResponse resp)
-    		throws IOException {
-		String destroy = req.getParameter("destroy");
-		if("yes".equals(destroy)){
-			ArrayList<String> rooms = xinxat.server.Server.listRooms();
-			for(String room : rooms){
-				resp.getWriter().println("\n-" + room);
-				ArrayList<String> users = xinxat.server.Server.getUsersFromRoom(room);
-				for(String user: users){
-					resp.getWriter().println("\n--" + user);
-				}
-			}
-			xinxat.server.Server.resetRooms();
-		}
-	}
-	
 	
 
 }

@@ -52,6 +52,12 @@ public class Server extends HttpServlet {
 	private static Map<String, ArrayList<Date>> antispam = new HashMap<String,ArrayList<Date>>();
 	
 	/**
+	 * Number of miliseconds it takes an spammer to write more than 5 messages
+	 */
+	private static final long spammerTime = 30000;
+	
+	
+	/**
 	 * Datastore connection
 	 */
 	DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
@@ -61,11 +67,7 @@ public class Server extends HttpServlet {
 	 */
 	private static final Logger log = Logger.getLogger(Server.class.getName());
 
-	/**
-	 * Number of miliseconds it takes someone to be an spammer
-	 */
-	private static final long spammerSpan = 30000;
-	
+
 	/**
 	 * This Servlet receives all the messages and puts them on the stack.
 	 * 
@@ -96,23 +98,23 @@ public class Server extends HttpServlet {
 					if(msg.getType().equals("chat")){
 						String recipient = msg.getRecipient();
 						//Get the Stack if it exists
-						Stack<String> pila_usuari = messageStack.get(recipient);
+						Stack<String> userStack = messageStack.get(recipient);
 						//If it doesn't exist, check if the user should have an stack
-				    	if(pila_usuari == null) {
+				    	if(userStack == null) {
 				    		Query q = new Query("user");
 				    		q.addFilter("username", Query.FilterOperator.EQUAL, recipient);
 							PreparedQuery pq = datastore.prepare(q);
 							for (Entity result : pq.asIterable()) {
 								String username = result.getProperty("username").toString();
 								if(username != null)
-									pila_usuari = new Stack<String>();
+									userStack = new Stack<String>();
 							}
 							
 				    	} 
 				    	//Now that we have a Stack, fill it!
-				    	if(pila_usuari != null){
-					    	pila_usuari.push(msg.getAllMessage());
-					    	messageStack.put(recipient, pila_usuari);
+				    	if(userStack != null){
+					    	userStack.push(msg.getAllMessage());
+					    	messageStack.put(recipient, userStack);
 					    	resp.getWriter().println("OK");
 	
 						}
@@ -124,29 +126,35 @@ public class Server extends HttpServlet {
 					//If it is a groupchat
 					else if (msg.getType().equals("groupchat")){
 						String destChannel = msg.getRecipient();
-						ArrayList<String> peopleInRoom = getUsersFromRoom(destChannel);
-						for (String user : peopleInRoom){
-							Stack<String> pila_usuari = messageStack.get(user);
-							//If it doesn't exist, check if the user should have an stack
-					    	if(pila_usuari == null) {
-					    		Query q = new Query("user");
-					    		q.addFilter("username", Query.FilterOperator.EQUAL, user);
-								PreparedQuery pq = datastore.prepare(q);
-								for (Entity result : pq.asIterable()) {
-									String username = result.getProperty("username").toString();
-									if(username != null)
-										pila_usuari = new Stack<String>();
-								}	
-					    	}
-					    	//Now that we have a Stack, fill it!
-					    	if(pila_usuari != null){
-						    	pila_usuari.push(msg.getAllMessage());
-						    	messageStack.put(user, pila_usuari);
-						    	resp.getWriter().println("OK");
-					    	}
-					    	else {
-					    		resp.getWriter().println("NOEXISTS");
-					    	}
+						//if(!getUsersFromRoom(destChannel).contains(msg.getSender())){
+						if(!listRooms().contains(destChannel)){
+							resp.getWriter().println("CANT");
+						}
+						else {
+							ArrayList<String> peopleInRoom = getUsersFromRoom(destChannel);
+							for (String user : peopleInRoom){
+								Stack<String> pila_usuari = messageStack.get(user);
+								//If it doesn't exist, check if the user should have an stack
+						    	if(pila_usuari == null) {
+						    		Query q = new Query("user");
+						    		q.addFilter("username", Query.FilterOperator.EQUAL, user);
+									PreparedQuery pq = datastore.prepare(q);
+									for (Entity result : pq.asIterable()) {
+										String username = result.getProperty("username").toString();
+										if(username != null)
+											pila_usuari = new Stack<String>();
+									}	
+						    	}
+						    	//Now that we have a Stack, fill it!
+						    	if(pila_usuari != null){
+							    	pila_usuari.push(msg.getAllMessage());
+							    	messageStack.put(user, pila_usuari);
+							    	resp.getWriter().println("OK");
+						    	}
+						    	else {
+						    		resp.getWriter().println("NOEXISTS");
+						    	}
+							}
 						}
 					}
 					//If it is a system message
@@ -164,12 +172,25 @@ public class Server extends HttpServlet {
 								else if(!isAllowedToJoin(msg.getSender(),params[1])){
 									log.info("[" + msg.getSender() + "] was trying to join [" + params[1] + "+] but couldn't");
 									sendMessage(msg.getSender(), "You cannot enter this room");
+									resp.getWriter().println("CANT");
+								}
+							}
+							else if(banlist(params[1])!=null){
+								if(banlist(params[1]).contains(msg.getSender())){
+									log.info("[" + msg.getSender() + "] was trying to join [" + params[1] + "+] but couldn't");
+									sendMessage(msg.getSender(), "You cannot enter this room");
+									resp.getWriter().println("CANT");
+								}
+								else{
+									addUserToRoom(msg.getSender(), params[1]);
+									resp.getWriter().println("OK");
 								}
 							}
 							else {
 								addUserToRoom(msg.getSender(), params[1]);
 								resp.getWriter().println("OK");
 							}
+							
 							
 						}
 						// /leave
@@ -191,6 +212,7 @@ public class Server extends HttpServlet {
 							sendMessage(msg.getRecipient(), params[1] + "was banned because: " + params[2]);
 							deleteUserFromRoom(params[1], msg.getRecipient());
 							ban(params[1],msg.getRecipient());
+							resp.getWriter().println("OK");
 						}
 						// /unban username
 						else if(params[0].equals("/unban")){
@@ -227,6 +249,8 @@ public class Server extends HttpServlet {
 			e.printStackTrace();
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
+		} catch (NullPointerException e){
+			resp.getWriter().println("NOEXISTS");
 		}
 
     }
@@ -250,8 +274,8 @@ public class Server extends HttpServlet {
     	String recipient = req.getParameter("to");
 		if(from != null && recipient.equals(from.getProperty("username"))){
 			//Get the stack of pending messages from the map
-	    	Stack<String> missatges = messageStack.get(recipient);
-	    	if(missatges == null) missatges = new Stack<String>();
+	    	Stack<String> msgStack = messageStack.get(recipient);
+	    	if(msgStack == null) msgStack = new Stack<String>();
 	    	
 	    	//Set the presence of the user
 			String show = req.getParameter("show");
@@ -277,7 +301,7 @@ public class Server extends HttpServlet {
 			}
 			
 			//Return presence if no messages are unread
-	    	if(missatges.isEmpty()){
+	    	if(msgStack.isEmpty()){
 	    			resp.setContentType("text/plain");
 	    			resp.getWriter().println("<presence xml:lang=\"en\">" +
 	    	    			"\n\t<show>" + show + "</show>" +
@@ -287,18 +311,18 @@ public class Server extends HttpServlet {
 	    	//Return the messages
 		    else {
 		    	//Reverse the Stack
-		    	Stack <String> pila_reversed = new Stack<String>();
-		    	while(!missatges.isEmpty()){
-		    		String message = missatges.pop();
-		    		pila_reversed.push(message);
+		    	Stack <String> reversedStack = new Stack<String>();
+		    	while(!msgStack.isEmpty()){
+		    		String message = msgStack.pop();
+		    		reversedStack.push(message);
 		    	}
 		    	
 		    	//Output the Stack
 		    	resp.setContentType("text/plain");
 		    	resp.getWriter().println("<?xml version=\"1.0\"?>\n" +
 		    								"<messages>\n");
-		    	while (!pila_reversed.isEmpty()){
-		    		resp.getWriter().println( pila_reversed.pop());
+		    	while (!reversedStack.isEmpty()){
+		    		resp.getWriter().println( reversedStack.pop());
 		    	}
 		    	resp.getWriter().println("</messages>\n");
 		    }
@@ -372,7 +396,7 @@ public class Server extends HttpServlet {
 	 * @param token password created by the frontend
 	 * @return User's entity
 	 */
-	public Entity getUserByToken(String token){
+	private Entity getUserByToken(String token){
 		Query query = new Query("user");
 		query.addFilter("password", Query.FilterOperator.EQUAL, token);
 		PreparedQuery pquery = datastore.prepare(query);
@@ -381,7 +405,7 @@ public class Server extends HttpServlet {
 				return user;
 			}
 		}
-		log.warning("Failed auth for token [" + token + "]" );
+		log.info("Failed auth for token [" + token + "]" );
 		return null;
 	}
 	
@@ -408,6 +432,10 @@ public class Server extends HttpServlet {
 		
 	}
 	
+	public static void resetBans(){
+		bans.clear();
+		log.warning("Bans were reset!");
+	}
 
 	/**
 	 * Unbans a user from a room
@@ -452,14 +480,18 @@ public class Server extends HttpServlet {
 							"<body>" + message + "</body>\n" +
 						"</message>";
 		
-		ArrayList<String> peopleInRoom = rooms.get(to);
-		for (String user : peopleInRoom){
-			Stack<String> pila_usuari = messageStack.get(user);
-	    	//Now that we have a Stack, fill it!
-	    	if(pila_usuari != null){
-		    	pila_usuari.push(msg);
-		    	messageStack.put(user, pila_usuari);
-	    	}
+		try {
+			ArrayList<String> peopleInRoom = rooms.get(to);
+			for (String user : peopleInRoom){
+				Stack<String> pila_usuari = messageStack.get(user);
+		    	//Now that we have a Stack, fill it!
+		    	if(pila_usuari != null){
+			    	pila_usuari.push(msg);
+			    	messageStack.put(user, pila_usuari);
+		    	}
+			}
+		} catch (NullPointerException e){
+			//The room doesn't exist
 		}
 		
 	}
@@ -491,7 +523,7 @@ public class Server extends HttpServlet {
 	 * @param room
 	 * @return
 	 */
-	private ArrayList<String> banlist(String room) {
+	public static ArrayList<String> banlist(String room) {
 		return bans.get(room);
 	}
 
@@ -512,11 +544,14 @@ public class Server extends HttpServlet {
 			bans.put(room, new ArrayList<String>());
 			banned = bans.get(room);
 		} 
-
-		if(banned.contains(user)){
-			return true;
-		}
-		else {
+		try{
+			if(banned.contains(user)){
+				return true;
+			}
+			else {
+				return false;
+			}
+		} catch (NullPointerException e){
 			return false;
 		}
 	}
@@ -585,11 +620,12 @@ public class Server extends HttpServlet {
 	 * @return
 	 */
 	private boolean isSpammer(String user) {
+		if(user.equals("testuser")) return false;
 		try{
 			ArrayList<Date> times = antispam.get(user);
 			Long first = times.get(0).getTime();
 			Long last = times.get(5).getTime();
-			if((first-last) < spammerSpan) {
+			if((first-last) < spammerTime) {
 				log.warning("[" + user + "] is spamming!");
 				return true;
 			}
