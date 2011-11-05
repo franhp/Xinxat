@@ -16,7 +16,7 @@ public class RoomList extends HttpServlet {
 		resp.setContentType("text/xml");
 		resp.getWriter().println("<rooms>");
 		for (String room : rooms){
-			resp.getWriter().println("<room name=\"" + room + "\" users=\"" + xinxat.server.Server.getUsersFromRoom(room).size() + "\" />");
+			resp.getWriter().println("\t<room name=\"" + room + "\" users=\"" + xinxat.server.Server.getUsersFromRoom(room).size() + "\" />");
 		}
 		resp.getWriter().println("</rooms>");
 	}

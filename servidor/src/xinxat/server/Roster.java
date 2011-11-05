@@ -51,7 +51,7 @@ public class Roster extends HttpServlet {
 		//Roster of room
 		else if (room != null){
 			List<String> users = xinxat.server.Server.getUsersFromRoom(req.getParameter("room"));
-			if(users != null)
+			if(users != null && !users.isEmpty())
 				q.addFilter("username", FilterOperator.IN, users);
 		}
 		PreparedQuery pq = datastore.prepare(q);

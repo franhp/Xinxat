@@ -120,6 +120,7 @@ public class Server extends HttpServlet {
 						}
 				    	else {
 				    		resp.getWriter().println("NOEXISTS");
+				    		log.severe("ERROR sending: " + msg.getAllMessage());
 				    	}
 					} 
 					
@@ -129,6 +130,7 @@ public class Server extends HttpServlet {
 						//if(!getUsersFromRoom(destChannel).contains(msg.getSender())){
 						if(!listRooms().contains(destChannel)){
 							resp.getWriter().println("CANT");
+							log.severe("ERROR sending: " + msg.getAllMessage());
 						}
 						else {
 							ArrayList<String> peopleInRoom = getUsersFromRoom(destChannel);
@@ -153,6 +155,7 @@ public class Server extends HttpServlet {
 						    	}
 						    	else {
 						    		resp.getWriter().println("NOEXISTS");
+						    		log.severe("ERROR sending: " + msg.getAllMessage());
 						    	}
 							}
 						}
@@ -173,6 +176,7 @@ public class Server extends HttpServlet {
 									log.info("[" + msg.getSender() + "] was trying to join [" + params[1] + "+] but couldn't");
 									sendMessage(msg.getSender(), "You cannot enter this room");
 									resp.getWriter().println("CANT");
+									log.severe("ERROR sending: " + msg.getAllMessage());
 								}
 							}
 							else if(banlist(params[1])!=null){
@@ -180,6 +184,7 @@ public class Server extends HttpServlet {
 									log.info("[" + msg.getSender() + "] was trying to join [" + params[1] + "+] but couldn't");
 									sendMessage(msg.getSender(), "You cannot enter this room");
 									resp.getWriter().println("CANT");
+									log.severe("ERROR sending: " + msg.getAllMessage());
 								}
 								else{
 									addUserToRoom(msg.getSender(), params[1]);
@@ -195,8 +200,14 @@ public class Server extends HttpServlet {
 						}
 						// /leave
 						else if(params[0].equals("/leave")){
-							deleteUserFromRoom(msg.getSender(), msg.getRecipient());
-							resp.getWriter().println("OK");
+							if(!roomIsPrivate(msg.getRecipient())){
+								deleteUserFromRoom(msg.getSender(), msg.getRecipient());
+								resp.getWriter().println("OK");
+							}
+							else {
+								resp.getWriter().println("CANT");
+								log.warning(msg.getSender() + " was trying to leave " + msg.getRecipient());
+							}
 						}
 						// /list
 						else if(params[0].equals("/list")){
@@ -243,6 +254,7 @@ public class Server extends HttpServlet {
 			}
 			else {
 				resp.getWriter().println("WRONG");
+				log.severe("ERROR sending: " + msg.getAllMessage());
 			}
 		}
 		catch (SAXException e) {
