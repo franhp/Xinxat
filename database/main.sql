@@ -1,28 +1,22 @@
 -- phpMyAdmin SQL Dump
--- version 3.3.9
+-- version 3.3.10.4
 -- http://www.phpmyadmin.net
 --
--- Servidor: localhost
--- Tiempo de generación: 12-10-2011 a las 16:39:03
--- Versión del servidor: 5.5.8
--- Versión de PHP: 5.3.5
+-- Servidor: mysql.xinxat.com
+-- Temps de generació: 05-11-2011 a les 10:09:56
+-- Versió del servidor: 5.1.53
+-- Versió de PHP : 5.2.17
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
-
 --
--- Base de datos: `xinxat`
+-- Base de dades: `xinxat_test`
 --
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `access`
+-- Estructura de la taula `access`
 --
 
 CREATE TABLE IF NOT EXISTS `access` (
@@ -31,18 +25,15 @@ CREATE TABLE IF NOT EXISTS `access` (
   `roomid` int(11) NOT NULL,
   `state` smallint(1) NOT NULL,
   `role` int(1) NOT NULL,
-  PRIMARY KEY (`accessid`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
---
--- Volcar la base de datos para la tabla `access`
---
-
+  PRIMARY KEY (`accessid`),
+  KEY `roomid` (`roomid`),
+  KEY `userid` (`userid`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=17 ;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `categories`
+-- Estructura de la taula `categories`
 --
 
 CREATE TABLE IF NOT EXISTS `categories` (
@@ -51,15 +42,10 @@ CREATE TABLE IF NOT EXISTS `categories` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
---
--- Volcar la base de datos para la tabla `categories`
---
-
-
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `comments`
+-- Estructura de la taula `comments`
 --
 
 CREATE TABLE IF NOT EXISTS `comments` (
@@ -68,18 +54,14 @@ CREATE TABLE IF NOT EXISTS `comments` (
   `postid` int(11) NOT NULL,
   `comment` varchar(1000) NOT NULL,
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
---
--- Volcar la base de datos para la tabla `comments`
---
-
+  PRIMARY KEY (`id`),
+  KEY `postid` (`postid`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=10 ;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `posts`
+-- Estructura de la taula `posts`
 --
 
 CREATE TABLE IF NOT EXISTS `posts` (
@@ -91,73 +73,82 @@ CREATE TABLE IF NOT EXISTS `posts` (
   `seourl` varchar(50) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `orderByDate` (`date`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
---
--- Volcar la base de datos para la tabla `posts`
---
-
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `posts_categories`
+-- Estructura de la taula `posts_categories`
 --
 
 CREATE TABLE IF NOT EXISTS `posts_categories` (
   `id` int(11) NOT NULL DEFAULT '0',
   `postid` int(11) DEFAULT NULL,
   `categoryid` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `postid` (`postid`),
+  KEY `categoryid` (`categoryid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Volcar la base de datos para la tabla `posts_categories`
---
-
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `rooms`
+-- Estructura de la taula `rooms`
 --
 
 CREATE TABLE IF NOT EXISTS `rooms` (
   `roomid` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(25) NOT NULL,
   `description` varchar(50) NOT NULL,
-  PRIMARY KEY (`roomid`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
---
--- Volcar la base de datos para la tabla `rooms`
---
-
+  PRIMARY KEY (`roomid`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=33 ;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `users`
+-- Estructura de la taula `users`
 --
 
 CREATE TABLE IF NOT EXISTS `users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `username` varchar(25) NOT NULL,
   `password` varchar(50) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `lastname` varchar(100) NOT NULL,
-  `lastlogin` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `lastonline` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `IP` varchar(30) NOT NULL,
-  `location` varchar(50) NOT NULL,
-  `birthdate` date NOT NULL,
+  `name` varchar(100) DEFAULT NULL,
+  `lastname` varchar(100) DEFAULT NULL,
+  `lastlogin` timestamp NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
+  `IP` varchar(30) DEFAULT NULL,
+  `location` varchar(50) DEFAULT NULL,
+  `birthdate` date DEFAULT NULL,
   `email` varchar(50) NOT NULL,
   `role` int(1) NOT NULL DEFAULT '1',
-  `oauth_token` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+  `oauth_uid` varchar(50) DEFAULT NULL,
+  `oauth_provider` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `username` (`username`),
+  UNIQUE KEY `oauth_uid` (`oauth_uid`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=60 ;
 
 --
--- Volcar la base de datos para la tabla `users`
+-- Restriccions per taules bolcades
 --
 
+--
+-- Restriccions per la taula `access`
+--
+ALTER TABLE `access`
+  ADD CONSTRAINT `access_ibfk_2` FOREIGN KEY (`roomid`) REFERENCES `rooms` (`roomid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `access_ibfk_1` FOREIGN KEY (`userid`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Restriccions per la taula `comments`
+--
+ALTER TABLE `comments`
+  ADD CONSTRAINT `comments_ibfk_1` FOREIGN KEY (`postid`) REFERENCES `posts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Restriccions per la taula `posts_categories`
+--
+ALTER TABLE `posts_categories`
+  ADD CONSTRAINT `posts_categories_ibfk_2` FOREIGN KEY (`categoryid`) REFERENCES `categories` (`id`) ON DELETE SET NULL ON UPDATE SET NULL,
+  ADD CONSTRAINT `posts_categories_ibfk_1` FOREIGN KEY (`postid`) REFERENCES `posts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
