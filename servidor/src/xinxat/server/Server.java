@@ -558,12 +558,12 @@ public class Server extends HttpServlet {
 
 	
 	/**
-	 * Returns true if the room name starts with #
+	 * Returns true if the room name starts with @
 	 * @param room
 	 * @return
 	 */
 	private boolean roomIsPrivate(String room) {
-		if(room.startsWith("#")) return true;
+		if(room.startsWith("@")) return true;
 		else return false;
 	}
 

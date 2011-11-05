@@ -3,7 +3,7 @@
   <cron>
     <url>/updateDB</url>
     <description>Updates the users database using the XML from api.xinxat.com</description>
-    <schedule>every 2 mins</schedule>
+    <schedule>every day 00:00</schedule>
   </cron>
   <cron>
     <url>/updateRooms</url>

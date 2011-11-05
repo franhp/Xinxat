@@ -17,7 +17,15 @@
   </servlet-mapping>
   
  
- 
+  <servlet>
+  <servlet-name>roomList</servlet-name>
+    <servlet-class>xinxat.server.RoomList</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>roomList</servlet-name>
+    <url-pattern>/roomList</url-pattern>
+  </servlet-mapping>
  
   
  <servlet>
