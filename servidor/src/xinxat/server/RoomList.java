@@ -9,6 +9,10 @@ import javax.servlet.http.HttpServletResponse;
 @SuppressWarnings("serial")
 public class RoomList extends HttpServlet {
 	
+	/**
+	 * This method returns an xml of all the rooms and their
+	 * users
+	 */
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
     		throws IOException {
 		

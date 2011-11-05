@@ -21,7 +21,10 @@ import org.xml.sax.InputSource;
 @SuppressWarnings("serial")
 public class UpdateRooms extends HttpServlet {
 		
-	
+	/**
+	 * This method allows the syncronization of the rooms between 
+	 * the frontend and the backend
+	 */
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
     		throws IOException {
 		
@@ -29,6 +32,10 @@ public class UpdateRooms extends HttpServlet {
 				
 	}
 	
+	/**
+	 * This method allows the reset of all the rooms by POSTing
+	 * with the following parameters: destroy=yes
+	 */
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
     		throws IOException {
 		String destroy = req.getParameter("destroy");

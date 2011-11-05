@@ -46,63 +46,7 @@ public class UpdateDB extends HttpServlet {
 	 */
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
     		throws IOException {		
-			try {
-				DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-				//Ir a buscar usuarios
-				URL url = new URL("http://api.xinxat.com/?users");
-				BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
-				String entrada = "";
-				String cadena = "";
-
-				while ((entrada = br.readLine()) != null){
-					cadena += entrada;
-				}
-
-				DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-				DocumentBuilder db = dbf.newDocumentBuilder();
-
-				InputSource archivo = new InputSource();
-				archivo.setCharacterStream(new StringReader(cadena)); 
-
-				Document documento = db.parse(archivo);
-
-				NodeList nodeLista = documento.getElementsByTagName("user");
-				
-				for (int s = 0; s < nodeLista.getLength(); s++) {
-					Element element = (Element) nodeLista.item(s);
-					String name = element.getAttribute("nickname");
-					String code = element.getAttribute("code");
-					
-					Query q = new Query("user");
-					q.addFilter("username", FilterOperator.EQUAL, name);
-					PreparedQuery pq = datastore.prepare(q);
-					
-					//If the user exists, just update the password
-					if(pq.countEntities(FetchOptions.Builder.withDefaults()) >= 1){
-						for (Entity result : pq.asIterable()){
-							if(!result.getProperty("password").equals(code)){
-								result.setProperty("password", code);
-								datastore.put(result);
-							}
-						}
-					}
-					//If the user doesn't exist, create a new one
-					else {
-						Entity user = new Entity("user");
-						user.setProperty("username", name);
-						user.setProperty("password", code);
-						long now = (long)(System.currentTimeMillis() / 1000L);
-						user.setProperty("lastonline", now);
-						datastore.put(user);
-					}
-
-				}
-				
-		  }
-		  catch (Exception e) {
-		    	e.printStackTrace();
-		  }
-				
+		doUpdate();
 	}
 
 
@@ -135,6 +79,66 @@ public class UpdateDB extends HttpServlet {
 			log.warning("Someone just deleted " + req.getParameter("delete") + " from the database");
 		}
 		
+	}
+	
+	public static void doUpdate(){
+		try {
+			DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+			//Ir a buscar usuarios
+			URL url = new URL("http://api.xinxat.com/?users");
+			BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
+			String entrada = "";
+			String cadena = "";
+
+			while ((entrada = br.readLine()) != null){
+				cadena += entrada;
+			}
+
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
+
+			InputSource archivo = new InputSource();
+			archivo.setCharacterStream(new StringReader(cadena)); 
+
+			Document documento = db.parse(archivo);
+
+			NodeList nodeLista = documento.getElementsByTagName("user");
+			
+			for (int s = 0; s < nodeLista.getLength(); s++) {
+				Element element = (Element) nodeLista.item(s);
+				String name = element.getAttribute("nickname");
+				String code = element.getAttribute("code");
+				
+				if(name != null){
+					Query q = new Query("user");
+					q.addFilter("username", FilterOperator.EQUAL, name);
+					PreparedQuery pq = datastore.prepare(q);
+					
+					//If the user exists, just update the password
+					if(pq.countEntities(FetchOptions.Builder.withDefaults()) >= 1){
+						for (Entity result : pq.asIterable()){
+							if(!result.getProperty("password").equals(code)){
+								result.setProperty("password", code);
+								datastore.put(result);
+							}
+						}
+					}
+					//If the user doesn't exist, create a new one
+					else {
+						Entity user = new Entity("user");
+						user.setProperty("username", name);
+						user.setProperty("password", code);
+						long now = (long)(System.currentTimeMillis() / 1000L);
+						user.setProperty("lastonline", now);
+						datastore.put(user);
+					}
+				}
+			}
+			
+	  }
+	  catch (Exception e) {
+	    	e.printStackTrace();
+	  }
 	}
 
 }
