@@ -24,7 +24,7 @@ public class Roster extends HttpServlet {
 	/**
 	 * This variable defines the time after which the user is considered offline
 	 */
-	private int time2BeOffline = 90;
+	private final int time2BeOffline = 90;
 
 	/**
 	 * Datastore connection
