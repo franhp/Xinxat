@@ -1,0 +1,3 @@
+[submodule "client-web"]
+	path = client-web
+	url = git@github.com:franhp/fda-web-framework.git
