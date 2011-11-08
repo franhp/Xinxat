@@ -23,18 +23,18 @@ public class ServerTest extends HttpServlet{
 	
 	private final String host = "http://localhost:8888";
 	private final String username = "testuser";
-	private final String token = "48b58bc18e6e635cb9ce2729fce5dbab";
+	private final String token = "c2d930fe79cc71189b343dd28a9dd831";
 	private final String testRoom = "testRoom";
-	private final String privateTestRoom = "#testRoom";
+	private final String privateTestRoom = "@testRoom";
 	
 	private final String usernameVictim = "franhp";
-	private final String tokenVictim = "37ecc39c39205ebe4fd090299472f746";
+	private final String tokenVictim = "3d5a5c438605de06cd3ade2fef78b78c";
 	
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
     		throws IOException {		
 		Date testStart = new Date();
-		System.out.println("===========================" + testStart + "===============");
 		resp.getWriter().println("====Started at:======" + testStart + "==========");
+		resp.getWriter().println("Updating: \t\t\t\t" + updateServer());
 		resp.getWriter().println("==Private Chats==");
 		resp.getWriter().println("Sending private chat: \t\t\t" + testSendPrivateChat());
 		resp.getWriter().println("Receiving private chat: \t\t" + testReceivePrivateChat());
@@ -49,7 +49,6 @@ public class ServerTest extends HttpServlet{
 		resp.getWriter().println("Sending message to a non-joined room: \t" + testSendGroupchatNonJoined());
 		resp.getWriter().println("==System Chats==");
 		resp.getWriter().println("Joining a private room\t\t\t" + testJoinPrivateRoom());
-		resp.getWriter().println("Joining a privateroom no permission\t" + testJoinPrivateRoomWithoutPermission());
 		resp.getWriter().println("Joining a nonexistent room\t\t" + testJoinNonExistentRoom());
 		resp.getWriter().println("Leaving a room\t\t\t\t" + testLeaveRoom());
 		resp.getWriter().println("Inviting someone to a room\t\t" + testInvite());
@@ -61,9 +60,18 @@ public class ServerTest extends HttpServlet{
 		resp.getWriter().println("Sanity check on roster\t\t\t" + testRoster());
 		resp.getWriter().println("==Reset==");
 		resp.getWriter().println("Last reset: \t\t\t\t" + resetAndUpdateRooms());
+		resp.getWriter().println("Updating: \t\t\t\t" + updateServer());
 		
 	}
 	
+
+
+	private String updateServer() {
+		xinxat.server.UpdateRooms.doUpdate();
+		xinxat.server.UpdateDB.doUpdate();
+		return "OK";
+	}
+
 
 
 	private String testInvite() {
@@ -195,25 +203,6 @@ public class ServerTest extends HttpServlet{
 			return "FAILED : malformedURL";
 		}
 	}
-
-
-
-	private String testJoinPrivateRoomWithoutPermission() {
-		try {
-			Map<String,String> data = new HashMap<String,String>();
-			data.put("token", token);
-			XmppTestMsgCreator msg = new XmppTestMsgCreator(username,username,"/join #marketing","system");			
-			data.put("msg", msg.build());
-			String result = postData(data, new URL(host + "/messages"));
-			if("OK".equals(result)
-					&&
-					xinxat.server.Server.getUsersFromRoom(privateTestRoom).contains(username)) return result;
-			else return "FAILED : " + result;
-		} catch (MalformedURLException e) {
-			return "FAILED : malformedURL";
-		}
-	}
-
 
 
 	private String testJoinPrivateRoom() {
