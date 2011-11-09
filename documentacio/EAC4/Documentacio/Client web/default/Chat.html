@@ -1,0 +1,804 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+  <html xmlns="http://www.w3.org/1999/xhtml">
+		<head>
+			<!-- template designed by Marco Von Ballmoos -->
+			<title>Docs For Class Chat</title>
+			<link rel="stylesheet" href="../media/stylesheet.css" />
+			<meta http-equiv='Content-Type' content='text/html; charset=iso-8859-1'/>
+		</head>
+		<body>
+			<div class="page-body">			
+<h2 class="class-name">Class Chat</h2>
+
+<a name="sec-description"></a>
+<div class="info-box">
+	<div class="info-box-title">Description</div>
+	<div class="nav-bar">
+					<span class="disabled">Description</span> |
+													<a href="#sec-var-summary">Vars</a> (<a href="#sec-vars">details</a>)
+						|											<a href="#sec-method-summary">Methods</a> (<a href="#sec-methods">details</a>)
+						
+					</div>
+	<div class="info-box-body">
+        		<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Chat Class para el chat de Xinxat</p>
+<p class="description"><p>Esta clase permite gestionar todo lo relacionado <br />  con el chat, salas, usuarios, etc.</p></p>
+	<ul class="tags">
+				<li><span class="field">author:</span> Hector Costa</li>
+				<li><span class="field">version:</span> 1.0</li>
+			</ul>
+		<p class="notes">
+			Located in <a class="field" href="_includes---chat.class.php.html">/includes/chat.class.php</a> (line <span class="field">11</span>)
+		</p>
+		
+				
+		<pre></pre>
+	
+			</div>
+</div>
+
+
+
+	<a name="sec-var-summary"></a>
+	<div class="info-box">
+		<div class="info-box-title">Variable Summary</span></div>
+		<div class="nav-bar">
+			<a href="#sec-description">Description</a> |
+						<span class="disabled">Vars</span> (<a href="#sec-vars">details</a>)
+							| 
+									<a href="#sec-method-summary">Methods</a> (<a href="#sec-methods">details</a>)
+							
+								</div>
+		<div class="info-box-body">
+			<div class="var-summary">
+																																<div class="var-title">
+					<span class="var-type">mixed</span>
+					<a href="#$db" title="details" class="var-name">$db</a>
+				</div>
+																<div class="var-title">
+					<span class="var-type">mixed</span>
+					<a href="#$settings" title="details" class="var-name">$settings</a>
+				</div>
+											</div>
+		</div>
+	</div>
+
+	<a name="sec-method-summary"></a>
+	<div class="info-box">
+		<div class="info-box-title">Method Summary</span></div>
+		<div class="nav-bar">
+			<a href="#sec-description">Description</a> |
+																		<a href="#sec-var-summary">Vars</a> (<a href="#sec-vars">details</a>)
+				 
+				|
+						<span class="disabled">Methods</span> (<a href="#sec-methods">details</a>)
+		</div>
+		<div class="info-box-body">			
+			<div class="method-summary">
+																																																																																																																																																												
+												<div class="method-definition">
+											<span class="method-result">Chat</span>
+										<a href="#__construct" title="details" class="method-name">__construct</a>
+										()
+									</div>
+																<div class="method-definition">
+											<span class="method-result">boolean</span>
+										<a href="#createRoom" title="details" class="method-name">createRoom</a>
+											(<span class="var-type">$name</span>&nbsp;<span class="var-name">$name</span>, <span class="var-type">$description</span>&nbsp;<span class="var-name">$description</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">boolean</span>
+										<a href="#deleteRoom" title="details" class="method-name">deleteRoom</a>
+											(<span class="var-type">$id</span>&nbsp;<span class="var-name">$id</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">$accessid</span>
+										<a href="#getAccess" title="details" class="method-name">getAccess</a>
+											(<span class="var-type">$roomid</span>&nbsp;<span class="var-name">$roomid</span>, <span class="var-type">$userid</span>&nbsp;<span class="var-name">$userid</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#getMessages" title="details" class="method-name">getMessages</a>
+											(<span class="var-type"></span>&nbsp;<span class="var-name">$target</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">roomid</span>
+										<a href="#getRoomId" title="details" class="method-name">getRoomId</a>
+											(<span class="var-type">$name</span>&nbsp;<span class="var-name">$name</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">boolean</span>
+										<a href="#insertUserRoom" title="details" class="method-name">insertUserRoom</a>
+											(<span class="var-type">$roomid</span>&nbsp;<span class="var-name">$roomid</span>, <span class="var-type">$userid</span>&nbsp;<span class="var-name">$userid</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">stdObject</span>
+										<a href="#listRooms" title="details" class="method-name">listRooms</a>
+										()
+									</div>
+																<div class="method-definition">
+											<span class="method-result">stdObject</span>
+										<a href="#listUserNoRooms" title="details" class="method-name">listUserNoRooms</a>
+											(<span class="var-type"></span>&nbsp;<span class="var-name">$id</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">stdObject</span>
+										<a href="#listUserRooms" title="details" class="method-name">listUserRooms</a>
+											(<span class="var-type"></span>&nbsp;<span class="var-name">$id</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">stdObject</span>
+										<a href="#listUsers" title="details" class="method-name">listUsers</a>
+										()
+									</div>
+																<div class="method-definition">
+											<span class="method-result">boolean</span>
+										<a href="#removeUserRoom" title="details" class="method-name">removeUserRoom</a>
+											(<span class="var-type">$roomid</span>&nbsp;<span class="var-name">$roomid</span>, <span class="var-type">$userid</span>&nbsp;<span class="var-name">$userid</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#roster" title="details" class="method-name">roster</a>
+											([<span class="var-type"></span>&nbsp;<span class="var-name">$room</span> = <span class="var-default">&quot;&quot;</span>])
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#sendCommand" title="details" class="method-name">sendCommand</a>
+											(<span class="var-type"></span>&nbsp;<span class="var-name">$command</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$target</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#sendMessage" title="details" class="method-name">sendMessage</a>
+											(<span class="var-type"></span>&nbsp;<span class="var-name">$from</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$target</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$message</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#updateDB" title="details" class="method-name">updateDB</a>
+										()
+									</div>
+																<div class="method-definition">
+											<span class="method-result">boolean</span>
+										<a href="#updateRoom" title="details" class="method-name">updateRoom</a>
+											(<span class="var-type">$id</span>&nbsp;<span class="var-name">$id</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$name</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$description</span>)
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#updateServerRooms" title="details" class="method-name">updateServerRooms</a>
+										()
+									</div>
+																<div class="method-definition">
+											<span class="method-result">void</span>
+										<a href="#xml_attribute" title="details" class="method-name">xml_attribute</a>
+											(<span class="var-type"></span>&nbsp;<span class="var-name">$object</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$attribute</span>)
+									</div>
+								</div>
+		</div>
+	</div>		
+
+	<a name="sec-vars"></a>
+	<div class="info-box">
+		<div class="info-box-title">Variables</div>
+		<div class="nav-bar">
+			<a href="#sec-description">Description</a> |
+										<a href="#sec-var-summary">Vars</a> (<span class="disabled">details</span>)
+						
+			
+										| 
+									<a href="#sec-method-summary">Methods</a> (<a href="#sec-methods">details</a>)
+							
+					</div>
+		<div class="info-box-body">
+			<a name="var$db" id="$db"><!-- --></A>
+<div class="oddrow">
+
+	<div class="var-header">
+		<span class="var-title">
+			<span class="var-type">mixed</span>
+			<span class="var-name">$db</span>
+						(line <span class="line-number">13</span>)
+		</span>
+	</div>
+
+	<!-- ========== Info from phpDoc block ========= -->
+	
+	
+		
+		
+
+</div>
+<a name="var$settings" id="$settings"><!-- --></A>
+<div class="evenrow">
+
+	<div class="var-header">
+		<span class="var-title">
+			<span class="var-type">mixed</span>
+			<span class="var-name">$settings</span>
+						(line <span class="line-number">14</span>)
+		</span>
+	</div>
+
+	<!-- ========== Info from phpDoc block ========= -->
+	
+	
+		
+		
+
+</div>
+						
+		</div>
+	</div>
+	
+	<a name="sec-methods"></a>
+	<div class="info-box">
+		<div class="info-box-title">Methods</div>
+		<div class="nav-bar">
+			<a href="#sec-description">Description</a> |
+															<a href="#sec-var-summary">Vars</a> (<a href="#sec-vars">details</a>)
+																	<a href="#sec-method-summary">Methods</a> (<span class="disabled">details</span>)
+						
+		</div>
+		<div class="info-box-body">
+			<A NAME='method_detail'></A>
+
+<a name="method__construct" id="__construct"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">Constructor __construct</span> (line <span class="line-number">16</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">Chat</span>
+		<span class="method-name">
+			__construct
+		</span>
+				()
+			</div>
+	
+		
+			
+	</div>
+<a name="methodcreateRoom" id="createRoom"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">createRoom</span> (line <span class="line-number">70</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Crea una room en la bd</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">boolean</span>
+		<span class="method-name">
+			createRoom
+		</span>
+					(<span class="var-type">$name</span>&nbsp;<span class="var-name">$name</span>, <span class="var-type">$description</span>&nbsp;<span class="var-name">$description</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">$name</span>
+				<span class="var-name">$name</span>			</li>
+					<li>
+				<span class="var-type">$description</span>
+				<span class="var-name">$description</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methoddeleteRoom" id="deleteRoom"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">deleteRoom</span> (line <span class="line-number">170</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Borra una room de la bd</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">boolean</span>
+		<span class="method-name">
+			deleteRoom
+		</span>
+					(<span class="var-type">$id</span>&nbsp;<span class="var-name">$id</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">$id</span>
+				<span class="var-name">$id</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodgetAccess" id="getAccess"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">getAccess</span> (line <span class="line-number">209</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Retorna la id de un access</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">$accessid</span>
+		<span class="method-name">
+			getAccess
+		</span>
+					(<span class="var-type">$roomid</span>&nbsp;<span class="var-name">$roomid</span>, <span class="var-type">$userid</span>&nbsp;<span class="var-name">$userid</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">$roomid</span>
+				<span class="var-name">$roomid</span>			</li>
+					<li>
+				<span class="var-type">$userid</span>
+				<span class="var-name">$userid</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodgetMessages" id="getMessages"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">getMessages</span> (line <span class="line-number">405</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			getMessages
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">$target</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$target</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodgetRoomId" id="getRoomId"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">getRoomId</span> (line <span class="line-number">191</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Retorna la id de una room</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">roomid</span>
+		<span class="method-name">
+			getRoomId
+		</span>
+					(<span class="var-type">$name</span>&nbsp;<span class="var-name">$name</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">$name</span>
+				<span class="var-name">$name</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodinsertUserRoom" id="insertUserRoom"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">insertUserRoom</span> (line <span class="line-number">117</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Inserta un usuario en una sala</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">boolean</span>
+		<span class="method-name">
+			insertUserRoom
+		</span>
+					(<span class="var-type">$roomid</span>&nbsp;<span class="var-name">$roomid</span>, <span class="var-type">$userid</span>&nbsp;<span class="var-name">$userid</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">$roomid</span>
+				<span class="var-name">$roomid</span>			</li>
+					<li>
+				<span class="var-type">$userid</span>
+				<span class="var-name">$userid</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodlistRooms" id="listRooms"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">listRooms</span> (line <span class="line-number">25</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Lista las rooms de la bd</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">stdObject</span>
+		<span class="method-name">
+			listRooms
+		</span>
+				()
+			</div>
+	
+		
+			
+	</div>
+<a name="methodlistUserNoRooms" id="listUserNoRooms"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">listUserNoRooms</span> (line <span class="line-number">56</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Lista las salas id+nombre donde no accede un usuario</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">stdObject</span>
+		<span class="method-name">
+			listUserNoRooms
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">$id</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$id</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodlistUserRooms" id="listUserRooms"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">listUserRooms</span> (line <span class="line-number">43</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Lista las salas id+nombre donde accede un usuario</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">stdObject</span>
+		<span class="method-name">
+			listUserRooms
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">$id</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$id</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodlistUsers" id="listUsers"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">listUsers</span> (line <span class="line-number">34</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Lista los usuarios de la bd</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">stdObject</span>
+		<span class="method-name">
+			listUsers
+		</span>
+				()
+			</div>
+	
+		
+			
+	</div>
+<a name="methodremoveUserRoom" id="removeUserRoom"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">removeUserRoom</span> (line <span class="line-number">144</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Borra un usuario de una sala</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">boolean</span>
+		<span class="method-name">
+			removeUserRoom
+		</span>
+					(<span class="var-type">$roomid</span>&nbsp;<span class="var-name">$roomid</span>, <span class="var-type">$userid</span>&nbsp;<span class="var-name">$userid</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">$roomid</span>
+				<span class="var-name">$roomid</span>			</li>
+					<li>
+				<span class="var-type">$userid</span>
+				<span class="var-name">$userid</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodroster" id="roster"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">roster</span> (line <span class="line-number">259</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			roster
+		</span>
+					([<span class="var-type"></span>&nbsp;<span class="var-name">$room</span> = <span class="var-default">&quot;&quot;</span>])
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$room</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodsendCommand" id="sendCommand"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">sendCommand</span> (line <span class="line-number">347</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			sendCommand
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">$command</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$target</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$command</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$target</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodsendMessage" id="sendMessage"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">sendMessage</span> (line <span class="line-number">297</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			sendMessage
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">$from</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$target</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$message</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$from</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$target</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$message</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodupdateDB" id="updateDB"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">updateDB</span> (line <span class="line-number">241</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Actualiza la bd del server</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			updateDB
+		</span>
+				()
+			</div>
+	
+		
+			
+	</div>
+<a name="methodupdateRoom" id="updateRoom"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">updateRoom</span> (line <span class="line-number">90</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Actualitza una room de la bd</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">boolean</span>
+		<span class="method-name">
+			updateRoom
+		</span>
+					(<span class="var-type">$id</span>&nbsp;<span class="var-name">$id</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$name</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$description</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type">$id</span>
+				<span class="var-name">$id</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$name</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$description</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodupdateServerRooms" id="updateServerRooms"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<span class="method-title">updateServerRooms</span> (line <span class="line-number">224</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Actualiza la bd del server</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			updateServerRooms
+		</span>
+				()
+			</div>
+	
+		
+			
+	</div>
+<a name="methodxml_attribute" id="xml_attribute"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<span class="method-title">xml_attribute</span> (line <span class="line-number">439</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Retorna un atributo de un xml object</p>
+	<ul class="tags">
+				<li><span class="field">access:</span> public</li>
+			</ul>
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			xml_attribute
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">$object</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$attribute</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$object</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$attribute</span>			</li>
+				</ul>
+		
+			
+	</div>
+						
+		</div>
+	</div>
+
+
+	<p class="notes" id="credit">
+		Documentation generated on Sun, 06 Nov 2011 19:17:37 +0100 by <a href="http://www.phpdoc.org" target="_blank">phpDocumentor 1.4.3</a>
+	</p>
+	</div></body>
+</html>

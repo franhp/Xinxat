@@ -1,0 +1,192 @@
+
+<!-- saved from url=(0025)http://xinxat.com/en/test -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+		<title>Xinxat web</title>
+		<link href="./Proves_caixa_blanca_files/style.css" media="screen" rel="stylesheet" type="text/css">
+		<script src="./Proves_caixa_blanca_files/jquery-1.6.2.min.js" type="text/javascript"></script>
+                <script src="./Proves_caixa_blanca_files/jquery-ui-1.8.14.min.js" type="text/javascript"></script>
+		<link href="./Proves_caixa_blanca_files/jquery-ui-1.8.16.custom.css" media="screen" rel="stylesheet" type="text/css">
+                <!--<link href="http://xinxat.com/css/jquery-ui-1.8.14.css" media="screen" rel="stylesheet" type="text/css" />-->
+		<script src="./Proves_caixa_blanca_files/jquery.scrollTo.js" type="text/javascript"></script>
+		<script type="text/javascript" src="./Proves_caixa_blanca_files/ckeditor.js"></script>
+		<script type="text/javascript" src="./Proves_caixa_blanca_files/jquery.js"></script>
+		</head>
+		<body>
+                <div id="wrapper"><div id="header">
+                    <h1 class="logo">xinxat.com beta web</h1>
+              </div>
+                    <div id="menu">
+                        <ul class="ulMenu"><li class="liMenu"><a href="http://xinxat.com/" class="active">Home</a></li><li class="liMenu"><a href="http://xinxat.com/en/blog">Blog</a></li><li class="liMenu"><a href="http://xinxat.com/en/register">Register</a></li><li class="liMenu"><a href="http://xinxat.com/en/login">Login</a></li></ul>
+                    </div>
+                    <div id="content"><h1>Tests de caixa blanca del prototip del client xinxat</h1><h4>Preparing test...</h4>Deleting user 'test': <span style="color: green; font-weight: bold;">Success</span><br>Deleting the room '@unAltreSala' from database: <span style="color: green; font-weight: bold;">Success</span><h2>Tests d'usuari</h2><h3>Test de registre usuari</h3>Creating test user: Values are Name-&gt;test , Password-&gt;test , Email-&gt;test@email.com, Oauth = null: <span style="color: green; font-weight: bold;">Success</span><h3>Test  de login d'usuari</h3>Loggin with existing user: Values are Name-&gt;test , Password-&gt;test: <span style="color: green; font-weight: bold;">Success</span><h3>Test de presencia d'usuari</h3>Is the user 'test' logged?: <span style="color: green; font-weight: bold;">Success</span><h3>Test d'edicio de perfil d'usuari</h3>Get the current user 'test' profile : <br><br>Updating current logged user (test) name-&gt;Testname, lastname-&gt;TestLastname, birthday-&gt;null, location-&gt;TestCity: <span style="color: green; font-weight: bold;">Success</span><br>Get the current user 'test' profile again:<br> Array
+(
+    [0] =&gt; TestName
+    [name] =&gt; TestName
+    [1] =&gt; TestLastname
+    [lastname] =&gt; TestLastname
+    [2] =&gt; TestCity
+    [location] =&gt; TestCity
+    [3] =&gt; 0000-00-00
+    [birthdate] =&gt; 0000-00-00
+)
+<h3>Test de logout d'usuari</h3>Logout current user 'test' : <span style="color: green; font-weight: bold;">Success</span><h3>Test d' eliminacio d'usuari</h3>Deleting user 'test': <span style="color: green; font-weight: bold;">Success</span><h2>Tests de sales</h2><h4>Preparant el test, utilitzant usuari antispam...</h4><h3>Test de crear una sala</h3>Creating sample room in database. Values are Name-&gt;@unaSala , Description-&gt;Una Sala Petita: <span style="color: green; font-weight: bold;">Success</span><h3>Test d'actualitzar una sala</h3><br>Updating the room '@unaSala' from database: New values are Name-&gt;@unAltreSala , Description-&gt;Un altre Sala Petita :<span style="color: green; font-weight: bold;">Success</span><h3>Test que llista totes les sales de la base de dades</h3>List of the current rooms in database: <br>stdClass Object
+(
+    [0] =&gt; stdClass Object
+        (
+            [roomid] =&gt; 1
+            [name] =&gt; @sinmarketing
+            [description] =&gt; sala de marketing
+        )
+
+    [1] =&gt; stdClass Object
+        (
+            [roomid] =&gt; 2
+            [name] =&gt; @general
+            [description] =&gt; chat general
+        )
+
+    [2] =&gt; stdClass Object
+        (
+            [roomid] =&gt; 4
+            [name] =&gt; @otrasala
+            [description] =&gt; lalalala
+        )
+
+    [3] =&gt; stdClass Object
+        (
+            [roomid] =&gt; 7
+            [name] =&gt; @testRoom
+            [description] =&gt; This private room is used for testing purposes
+        )
+
+    [4] =&gt; stdClass Object
+        (
+            [roomid] =&gt; 79
+            [name] =&gt; @unAltreSala
+            [description] =&gt; Un altre Sala Petita
+        )
+
+)
+<h3>Test insertar un usuari a una sala</h3>Inserting user test in the @unAltreSala room: <span style="color: green; font-weight: bold;">Success</span><h3>Test de borrar un usuari d'una sala</h3>Removing user test from the @unAltreSala room: <span style="color: green; font-weight: bold;">Success</span><h3>Test que llista les sales privades on es un usuari</h3>List rooms where is test : <br>stdClass Object
+(
+)
+<h3>Test que llista les sales privades on no hi es l'usuari</h3>List rooms where isn't test : <br>stdClass Object
+(
+    [0] =&gt; stdClass Object
+        (
+            [roomid] =&gt; 2
+            [roomname] =&gt; @general
+        )
+
+    [1] =&gt; stdClass Object
+        (
+            [roomid] =&gt; 4
+            [roomname] =&gt; @otrasala
+        )
+
+    [2] =&gt; stdClass Object
+        (
+            [roomid] =&gt; 1
+            [roomname] =&gt; @sinmarketing
+        )
+
+    [3] =&gt; stdClass Object
+        (
+            [roomid] =&gt; 7
+            [roomname] =&gt; @testRoom
+        )
+
+    [4] =&gt; stdClass Object
+        (
+            [roomid] =&gt; 79
+            [roomname] =&gt; @unAltreSala
+        )
+
+)
+<h3>Test que esborra una sala</h3>Deleting the room '@unAltreSala' from database: <span style="color: green; font-weight: bold;">Success</span><h2>Tests del client</h2><h4>Preparant el test...</h4>Loggin with existing user: Values are Name-&gt;testuser , Password-&gt;qwe123: <span style="color: green; font-weight: bold;">Success</span><br>Creating sample room in database. Values are Name-&gt;@unaSala , Description-&gt;Una Sala Petita: <span style="color: green; font-weight: bold;">Success</span><br><br>Updating the room '@unaSala' from database: New values are Name-&gt;@unAltreSala , Description-&gt;Un altre Sala Petita :<span style="color: green; font-weight: bold;">Success</span><h3>Test on un usuari entra a una sala</h3>User testuser is joining into @unAltreSala :OK
+<h3>Test on un usuari surt d'una sala</h3>User testuser is leaving room @unAltreSala :CANT
+<h3>Test que envia un missatge de sala</h3>User testuser is sending groupmessage to @unAltreSala room:OK
+<h3>Test que envia un missatge privat</h3>User testuser is sending privatemessage to himself:OK
+<h3>Test que executa diferentes comandes contra el servidor</h3>User testuser is requesting userlist from @sinmarketing room:<b>[hektor, franhp, nectar, igango, gango89, franhp2]
+</b><br>User testuser is inviting himself to the non-private room @imagine:<b>OK
+</b><br>User testuser is requesting userlist from @imagine room:<b>[testuser]
+</b><br>User testuser kick himself from the non-private room @imagine:<b>OK
+</b><br>User testuser is requesting userlist from @imagine room again:<b>[]
+</b><br>User testuser is joining into @imagine after being kicked:<b>OK
+</b><br>User testuser ban himself from the non-private room @imagine:<b>OK
+</b><br>User testuser is trying joining into @imagine after being kicked:<b>CANT
+</b><br>User testuser unban himself from the non-private room @imagine:<b>OK
+</b><br>User testuser is trying joining into @imagine after being kicked:<b>OK
+</b><h3>Test que mostra tots els missatges de la pila d'un ussuari</h3>User testuser gets all the messages from his messages pile: <br>object(SimpleXMLElement)#10 (1) {
+  ["message"]=&gt;
+  array(5) {
+    [0]=&gt;
+    object(SimpleXMLElement)#8 (2) {
+      ["@attributes"]=&gt;
+      array(3) {
+        ["to"]=&gt;
+        string(8) "@general"
+        ["from"]=&gt;
+        string(6) "igango"
+        ["type"]=&gt;
+        string(9) "groupchat"
+      }
+      ["body"]=&gt;
+      string(7) "mm hola"
+    }
+    [1]=&gt;
+    object(SimpleXMLElement)#9 (2) {
+      ["@attributes"]=&gt;
+      array(3) {
+        ["to"]=&gt;
+        string(12) "@unAltreSala"
+        ["from"]=&gt;
+        string(8) "testuser"
+        ["type"]=&gt;
+        string(9) "groupchat"
+      }
+      ["body"]=&gt;
+      string(18) "Group Test message"
+    }
+    [2]=&gt;
+    object(SimpleXMLElement)#11 (2) {
+      ["@attributes"]=&gt;
+      array(3) {
+        ["to"]=&gt;
+        string(8) "testuser"
+        ["from"]=&gt;
+        string(8) "testuser"
+        ["type"]=&gt;
+        string(4) "chat"
+      }
+      ["body"]=&gt;
+      string(20) "Private Test message"
+    }
+    [3]=&gt;
+    object(SimpleXMLElement)#12 (2) {
+      ["@attributes"]=&gt;
+      array(2) {
+        ["to"]=&gt;
+        string(8) "@imagine"
+        ["type"]=&gt;
+        string(6) "system"
+      }
+      ["body"]=&gt;
+      string(39) "testuser was kicked because: non-reason"
+    }
+    [4]=&gt;
+    object(SimpleXMLElement)#13 (2) {
+      ["@attributes"]=&gt;
+      array(2) {
+        ["to"]=&gt;
+        string(8) "@imagine"
+        ["type"]=&gt;
+        string(6) "system"
+      }
+      ["body"]=&gt;
+      string(38) "testuserwas banned because: non-reason"
+    }
+  }
+}
+
+</div><div id="footer">Footer content See you!</div></div></body></html>
