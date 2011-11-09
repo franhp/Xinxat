@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nombre">Escribe tu nombre:</string>
+    <string name="app_name">XinXat</string>
+	<string name="hola">Hola</string><string name="login">Login: </string>
+	<string name="enter">Accedir</string>
+	<string name="a"></string>
+	<color name="verde">#00FF00</color>
+	<color name="gris">#C9C9C9</color>
+</resources>
