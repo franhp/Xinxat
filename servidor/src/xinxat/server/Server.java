@@ -220,7 +220,11 @@ public class Server extends HttpServlet {
 						}
 						// /ban username reason
 						else if(params[0].equals("/ban")){
-							sendMessage(msg.getRecipient(), params[1] + "was banned because: " + params[2]);
+							String reason = "";
+							for(int i = 2; i<params.length; i++){
+								reason += params[i];
+							}
+							sendMessage(msg.getRecipient(), params[1] + "was banned because: " + reason);
 							deleteUserFromRoom(params[1], msg.getRecipient());
 							ban(params[1],msg.getRecipient());
 							resp.getWriter().println("OK");
@@ -237,7 +241,11 @@ public class Server extends HttpServlet {
 						}
 						// /kick username reason
 						else if(params[0].equals("/kick")){
-							sendMessage(msg.getRecipient(), params[1] + " was kicked because: " + params[2]);
+							String reason = "";
+							for(int i = 2; i<params.length; i++){
+								reason += params[i];
+							}
+							sendMessage(msg.getRecipient(), params[1] + " was kicked because: " + reason);
 							deleteUserFromRoom(params[1], msg.getRecipient());
 							resp.getWriter().println("OK");
 						}
