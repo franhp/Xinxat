@@ -1,0 +1,82 @@
+body{
+    font-family: 'georgia';
+    font-size: 12px;
+    margin:0;
+    padding:0;
+    background-image: url('http://xinxat.com/img/bg.png');
+    background-position: center top;
+    background-repeat: repeat-x; 
+    background-color: #3598fe;
+    text-align:  center;
+}
+
+
+/* Page design */
+
+#wrapper{width: 800px;margin:auto; margin-top: 35px; background-color: white;-moz-box-shadow: 6px 6px 10px #505050;-webkit-box-shadow: 6px 6px 10px #505050;box-shadow: 6px 6px 10px #505050;margin-bottom: 35px;}
+#header{width: 800px; height: 60px; background: #292929;-webkit-border-top-left-radius:35px;-moz-border-radius-topleft: 35px;border-top-left-radius: 35px;}
+#menu{width: 100%; height: 30px; background: #292929;}
+.ulMenu{display: inline; padding:0; margin:7px; font-size: 125%; font-family: MetaBold, Trebuchet MS, sans-serif;}
+.liMenu{ float: left; margin-left: 15px; margin-right: 0px;list-style: none; }
+#menu a{text-decoration: none; color: #fff}
+#menu a:hover{border-top: 3px solid #ff9933; color: #ff9933}
+.active{border-top: 3px solid #fff; color: #ff9933;}
+#content{width: 780px;padding: 10px; background-color: white; text-align:  left;}
+#footer{width: 780px; height: 12px; padding: 10px; background-color: #ff9933; text-align: right;}
+.logo{font-size: 350%; float:right;margin-right: 20px; margin-top: 8px;font-family: MetaBold, Trebuchet MS, sans-serif; font-weight: bold; color:white;}
+h1{font-family: MetaBold, Trebuchet MS, sans-serif;}
+a{color: darkgreen;  text-decoration: none;}
+a:hover{color: darkgreen; text-decoration: underline}
+
+/* Login  */
+
+.loginBox {
+    width: 20%;
+}
+
+
+/* Blog */
+
+#posts {
+    width: 100%;
+}
+
+.comments {
+    width: 70%;	
+}
+
+.comment {
+}
+
+/* Register */
+
+#register-div{
+    margin: 10px;
+    /*border: 2px solid black;*/
+    width: 500px;
+    line-height: 1.3em;
+}
+
+#register-div label{
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+#register-div input{
+    width: 250px;
+}
+
+#register-div span {display:none; color: blue;}
+
+#register-div .correcto{
+    color: green;
+}
+
+#register-div .incorrecto{
+    color: red;
+}
+
+#register-div .cargando{
+    color: gray;
+}
