@@ -7,4 +7,8 @@
 	<string name="a"></string>
 	<color name="verde">#00FF00</color>
 	<color name="gris">#C9C9C9</color>
+	<color name="blanc">#fff</color><color name="groc">#FFFF33</color>
+	<color name="vermell">#CD0000</color>
+	<color name="verd">#62a114</color>
+	<color name="verd_fosc">#213606</color>
 </resources>

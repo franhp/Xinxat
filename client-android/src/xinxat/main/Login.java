@@ -13,10 +13,12 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -32,13 +34,46 @@ public class Login extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        //Declaració del boto de login
-        final Button btnLogin = (Button)findViewById(R.id.BtnLogin);
         
-        //OnClick boto login
-        btnLogin.setOnClickListener(new OnClickListener() {
+        //Creació de variables
+        final EditText textUser = (EditText)findViewById(R.id.TxtNombre);
+		final EditText textPass = (EditText)findViewById(R.id.TxtPassword);
+		final DBAdapter db = new DBAdapter(this);
+		
+		//Obtenim el usuari, si aquest havia recordat el seu usuari i contrasenya
+		 db.open(); 
+		 //Crida ala funció getX
+		 Cursor c = db.getX();
+		 if (c.moveToFirst())
+	        {
+	            do {          
+	            	//Crida a la funció que ens mostrarà el ultim usuari recordat en els camps de usuari i contrasenya
+	                DisplayTitle(c);
+	            } while (c.moveToNext());
+	        }
+		   //Tanquem la Base de Dades
+	       db.close();
+	       
+	       
+	       
+	     //Declaració del boto de checkbox
+        final CheckBox checkbox = (CheckBox) findViewById( R.id.checkbox );
 
+        
+        //Declaració del boto de login
+        final Button btnLogin = (Button)findViewById(R.id.BtnLogin);      
+        btnLogin.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
+    	        if (checkbox.isChecked())
+    	        {
+    	        	//Guardarem el Usuari i Contrasenya si el checkbox està marcat
+    				String username = textUser.getText().toString();
+    				String password = textPass.getText().toString();
+    	        	db.open();
+    	        	db.insertUser(username, password, "s");
+    	        	db.close();
+    	        }
+    	        
             	//Declaració de variables
 				Intent intent = new Intent(Login.this, Roster.class);
     			EditText textUser = (EditText)findViewById(R.id.TxtNombre);
@@ -50,7 +85,6 @@ public class Login extends Activity {
                 //Convertim la contrasenya en format md5, per dificultar-ne l'obtenció d'aquesta a tercers
                 String password = md5(textPass.getText().toString()+"V1V4fDA");
                 
-                
                 try {
                 	//Assignem al toquen el resultat de la funció login, que crida un get de la web 
                 	//que ens tornarà un login si ha anat bé i sinó ens tornarà false
@@ -59,7 +93,6 @@ public class Login extends Activity {
                 }catch (Exception e) {
 					e.printStackTrace();
 				}
-
 
                 //Si l'usuari es valida correctament, enviarem el token i el nom d'usuari a la següent activitat mitjançant un intent
             	if (!token.equals( "false" )){
@@ -81,14 +114,40 @@ public class Login extends Activity {
             }
         });
     }
+
+	/**
+	 * Funció amb la qual mostrem el nom d'usuari i contrasenya recordats
+	 * 
+     * @param Cursor c
+     */
+    public void DisplayTitle(Cursor c)
+    {
+
+    	if(c.moveToFirst() ){
+    		do{
+    			 //Ens movem per el cursor i agafem el ultim usuari recordat
+    			 EditText textUser = (EditText)findViewById(R.id.TxtNombre);
+    			 EditText textPass = (EditText)findViewById(R.id.TxtPassword);
+    			 String usuari = c.getString(1);
+    			 String contrasenya = c.getString(2);
+    			 
+    			 textUser.setText(usuari);
+    			 textPass.setText(contrasenya);
+    			 
+    		}while (c.moveToNext());
+		}  
+    } 
     
-    /**
+    
+    
+	/**
+	 * Funció que ens comprova si el usuari es valida correctament passant-li el nom i la contrasenya
+	 * 
      * @param String username
      * @param String password
      * @return
      * @throws Exception
      */
-    //Funció que ens comprova si el usuari es valida correctament passant-li el nom i la contrasenya
     private String login(String username, String password) throws Exception {
     	String str="null";
     	try {
@@ -109,10 +168,11 @@ public class Login extends Activity {
     }
     
     /**
+     * Funció que ens covnerteix la password en md5 
+     * 
      * @param String s
      * @return
      */
-    //Funció que ens covnerteix la password en md5 
     public static final String md5(final String s) {
         try {
             MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
@@ -134,9 +194,10 @@ public class Login extends Activity {
     }
     
     /**
+     * Funció que serveix per mostrar un message box en la layout quan quelcom va malament
+     * 
      * @param String message
      */
-    //Funció que serveix per mostrar un message box en la layout quan quelcom va malament
 	public void MessageBox(String message){
 		Toast.makeText(this,message,Toast.LENGTH_SHORT).show();
 	}

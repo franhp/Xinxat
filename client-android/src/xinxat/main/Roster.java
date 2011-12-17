@@ -76,6 +76,8 @@ public class Roster extends Activity {
 						Button myButton = new Button(this);
 						myButton.setText("Sala:   " + target);
 						myButton.setId(i);
+						myButton.setTextColor(Color.WHITE);
+						myButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.usuaris));
 						myButton.setOnClickListener(new OnClickListener() {
 							public void onClick(View v) {
 			    				
@@ -130,7 +132,8 @@ public class Roster extends Activity {
 								Button myButton = new Button(this);
 								//Diferenciació d'usuaris online o offline mitjançant el textcolor
 								if(show.equals("online")) myButton.setTextColor(Color.GREEN);
-								else myButton.setTextColor(Color.GRAY);
+								else myButton.setTextColor(Color.WHITE);
+								myButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.usuari));
 								myButton.setText("Usuari:   " + from);
 								myButton.setId(i);
 								myButton.setOnClickListener(new OnClickListener() {
@@ -172,6 +175,8 @@ public class Roster extends Activity {
     };
     
     /**
+     * Funció que ens mostra els usuaris que hi ha en el Xat, ja siguin offline o online
+     * 
      * @return
      */
     public String getRoster(){
@@ -208,6 +213,8 @@ public class Roster extends Activity {
     }
     
     /**
+     * Funció que mostra les sales disponibles per el nsotre usuari
+     * 
      * @return
      */
     public String getRooms(){
@@ -250,7 +257,9 @@ public class Roster extends Activity {
     } 
 
     /**
-     * @param message
+     * Funció que serveix per mostrar un message box en la layout quan quelcom va malament
+     * 
+     * @param String message
      */
 	public void MessageBox(String message){
 		Toast.makeText(this,message,Toast.LENGTH_SHORT).show();

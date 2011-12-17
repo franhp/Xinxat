@@ -1,39 +1,104 @@
 <?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="match_parent"
+    android:background="@color/blanc"
+    android:orientation="vertical"
+    android:padding="10dip"
+    android:weightSum="1" >
 
-<LinearLayout 
-	xmlns:android="http://schemas.android.com/apk/res/android"
-  	android:layout_width="fill_parent"
-  	android:layout_height="wrap_content"
-  	android:orientation="vertical"
-  	android:padding="10dip" android:weightSum="1">
+    <RelativeLayout
+        android:id="@+id/relativeLayout3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/logo_top" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/RelativeLayout01"
+        android:layout_width="match_parent"
+        android:layout_height="10dp" >
+    </RelativeLayout>
     
 	<TextView android:id="@+id/LblNombre"
 		android:layout_height="wrap_content"
 		android:layout_width="wrap_content" 
 		android:text="Usuari:"
-		android:textStyle="bold" />
+		android:textStyle="bold" 
+		android:textSize="30px"
+		android:textColor="@color/verd"/>
 
 	<EditText 
 		android:layout_height="wrap_content" 
 		android:id="@+id/TxtNombre" 
 		android:layout_width="fill_parent"/>
+
+	<RelativeLayout
+	    android:id="@+id/relativeLayout1"
+	    android:layout_width="match_parent"
+	    android:layout_height="20dp" >
+	</RelativeLayout>
 			
 	<TextView 
 		android:id="@+id/TextView01" 
 		android:text="Contrasenya:"
 		android:textStyle="bold" 
 		android:layout_height="wrap_content" 
-		android:layout_width="wrap_content"/>
+		android:layout_width="wrap_content"
+		android:textColor="@color/verd"
+		android:textSize="30px"/>
 		
     <EditText android:id="@+id/TxtPassword"
         android:layout_height="wrap_content"
         android:layout_width="fill_parent"
         android:inputType="textPassword" />
-        
-    <Button 
-    	android:id="@+id/BtnLogin" 
-    	android:layout_width="wrap_content" 
-    	android:layout_height="wrap_content" android:text="@string/enter">
-    </Button>
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="10dp" >
+
+    </RelativeLayout>
+
+    <TableRow
+        android:id="@+id/tableRow1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <LinearLayout
+            android:id="@+id/linearLayout1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <CheckBox
+                android:id="@+id/checkbox"
+                android:layout_width="45dp"
+                android:layout_height="50dp"
+                android:text="CheckBox" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="114dp"
+            android:layout_height="wrap_content"
+            android:text="Recordar" />
+
+        <Button
+            android:id="@+id/BtnLogin"
+            android:layout_width="138dp"
+            android:layout_height="46dp"
+            android:background="@drawable/boto_login" />
+
+
+    </TableRow>
 
 </LinearLayout>

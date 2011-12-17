@@ -11,26 +11,43 @@ public final class R {
     public static final class attr {
     }
     public static final class color {
+        public static final int blanc=0x7f050002;
         public static final int gris=0x7f050001;
+        public static final int groc=0x7f050003;
+        public static final int verd=0x7f050005;
+        public static final int verd_fosc=0x7f050006;
         public static final int verde=0x7f050000;
+        public static final int vermell=0x7f050004;
     }
     public static final class drawable {
-        public static final int icon=0x7f020000;
+        public static final int boto_login=0x7f020000;
+        public static final int boto_send=0x7f020001;
+        public static final int icon=0x7f020002;
+        public static final int logo_top=0x7f020003;
+        public static final int usuari=0x7f020004;
+        public static final int usuaris=0x7f020005;
     }
     public static final class id {
-        public static final int BtnLogin=0x7f060004;
-        public static final int LblNombre=0x7f060000;
-        public static final int LinearLayout01=0x7f060008;
-        public static final int RelativeLayout01=0x7f060007;
-        public static final int ScrollView01=0x7f060005;
-        public static final int TextView01=0x7f060002;
-        public static final int TxtMonitor=0x7f060009;
-        public static final int TxtNombre=0x7f060001;
-        public static final int TxtPassword=0x7f060003;
-        public static final int layout1=0x7f060006;
-        public static final int mSendText=0x7f06000b;
-        public static final int relativeLayout1=0x7f06000a;
-        public static final int sendButton=0x7f06000c;
+        public static final int BtnLogin=0x7f06000d;
+        public static final int LblNombre=0x7f060003;
+        public static final int LinearLayout01=0x7f060010;
+        public static final int RelativeLayout01=0x7f060002;
+        public static final int ScrollView01=0x7f06000e;
+        public static final int TextView01=0x7f060006;
+        public static final int TxtMonitor=0x7f060011;
+        public static final int TxtNombre=0x7f060004;
+        public static final int TxtPassword=0x7f060007;
+        public static final int checkbox=0x7f06000b;
+        public static final int imageView1=0x7f060001;
+        public static final int layout1=0x7f06000f;
+        public static final int linearLayout1=0x7f06000a;
+        public static final int mSendText=0x7f060012;
+        public static final int relativeLayout1=0x7f060005;
+        public static final int relativeLayout2=0x7f060008;
+        public static final int relativeLayout3=0x7f060000;
+        public static final int sendButton=0x7f060013;
+        public static final int tableRow1=0x7f060009;
+        public static final int textView1=0x7f06000c;
     }
     public static final class layout {
         public static final int main=0x7f030000;

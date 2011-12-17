@@ -16,6 +16,12 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Html;
@@ -33,24 +39,25 @@ public class XinXatMain extends Activity {
 	public String acumlador = "";
 	public XMLParser parser;
 	private ArrayList<Message> messages = new ArrayList<Message>();
+	private static final int NOTIF_ALERTA_ID = 1;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.xinxat);
 
-        Bundle bundle = this.getIntent().getExtras();
-        
         //Obtenció de les varaibles de l'activitat anterior: Roster.java
+        Bundle bundle = this.getIntent().getExtras();
         final String username = "" + bundle.getString("USERNAME1");
         final String token = "" + bundle.getString("TOKEN1");
         final String target = "" + bundle.getString("TARGET1");
         final String type = "" + bundle.getString("TYPE1");
-
+        setTitle(target);
+        
         	//Declarem els dos fils
 	        final Handler handler = new Handler();
 	        final Handler handler1 = new Handler();
-	        
+	        final DBAdapter db = new DBAdapter(this);
 	        //Excecució del primer fil cada 80 sec
 	        Runnable runnable1 = new Runnable() {
 	        	@SuppressWarnings("unchecked")
@@ -66,28 +73,71 @@ public class XinXatMain extends Activity {
 							messages = (ArrayList<Message>) parser.parseXmlString();			
 							
 							if (!messages.isEmpty()){
+								//Creació de la Notificació
+								String ns = Context.NOTIFICATION_SERVICE;
+								NotificationManager notManager = (NotificationManager) getSystemService(ns);
+								
+								//Configurem la notifiació
+								int icono = android.R.drawable.stat_sys_warning;
+								CharSequence textoEstado = "Nou Missatge!";
+								
+								//Obtenim la hora del sistema
+								long hora = System.currentTimeMillis();
+								Notification notif = new Notification(icono, textoEstado, hora);
+								
+								//Configurem el intent per tornar a accedir a l'aplicació si aquest roman tancada en "background"
+								Context contexto = getApplicationContext();
+								CharSequence titulo = "Nou Missatge!";
+								CharSequence descripcion = "Nou missatge de XinXat!";
+								Intent notIntent = new Intent(contexto, Login.class);
+								PendingIntent contIntent = PendingIntent.getActivity(contexto, 0, notIntent, 0);
+								notif.setLatestEventInfo(contexto, titulo, descripcion, contIntent);
+								
+								//AutoCancel: Quan és prem borrar la notificació desapareix
+								notif.flags |= Notification.FLAG_AUTO_CANCEL;
+								
+								//Afegim opcions a la notificació, ambé es podria fer vibrar, etc . . . 
+								notif.defaults |= Notification.DEFAULT_SOUND;
+								
+								//Enviem la notificació
+								notManager.notify(NOTIF_ALERTA_ID, notif);							
+								
+
 									for(int i=0;i<messages.size();i++)
 									{
 										String body = null;
 										String from = null;
+										String to = null;
 										
+										//Obtenim els missatges
 										from = messages.get(i).getFrom();
 										body = messages.get(i).getBody();
+										to = messages.get(i).getTo();
 										
+										//Guardem els missatges al historial
+								        db.open();        
+								        long id;
+								        id = db.insertTitle(
+								        		from,
+								        		to,
+								        		body);   
+								        db.close();
+										
+								        //Mostrarem els missatges en format HTML per modificar el estil
 										if (body != null){
 											if (!from.equals(username)){
-											acumlador += from+": "+messages.get(i).toString()+"<br>";
-											txtMonitor.setText(Html.fromHtml(acumlador ));
+												acumlador += "<b><font color=\"#375b0b\">("+from+")</b>"+to+":<i>"+messages.get(i).toString()+"</i></font><br>";
+												txtMonitor.setText(Html.fromHtml(acumlador ));
 											}
 										}
 									} 
 								}
 							else {
+									//Si no hi ha missatges
 									MessageBox("No hay message");
 							}
 					}
 				} catch (Exception e) {
-					MessageBox("Error raro");
 					e.printStackTrace();
 				}
 				
@@ -112,18 +162,64 @@ public class XinXatMain extends Activity {
 								messages = (ArrayList<Message>) parser.parseXmlString();			
 								
 								if (!messages.isEmpty()){
+									//Creació de la Notificació
+									String ns = Context.NOTIFICATION_SERVICE;
+									NotificationManager notManager = (NotificationManager) getSystemService(ns);
+									
+									//Configurem la notifiació
+									int icono = android.R.drawable.stat_sys_warning;
+									CharSequence textoEstado = "Nou Missatge!";
+									
+									//Obtenim la hora del sistema
+									long hora = System.currentTimeMillis();
+									Notification notif = new Notification(icono, textoEstado, hora);
+									
+									//Configurem el intent per tornar a accedir a l'aplicació si aquest roman tancada en "background"
+									Context contexto = getApplicationContext();
+									CharSequence titulo = "Nou Missatge!";
+									CharSequence descripcion = "Nou missatge de XinXat!";
+									
+									Intent notIntent = new Intent(contexto, Login.class);
+									
+									PendingIntent contIntent = PendingIntent.getActivity(contexto, 0, notIntent, 0);
+
+									notif.setLatestEventInfo(contexto, titulo, descripcion, contIntent);
+									
+									//AutoCancel: Quan és prem borrar la notificació desapareix
+									notif.flags |= Notification.FLAG_AUTO_CANCEL;
+									
+									//Afegim opcions a la notificació, ambé es podria fer vibrar, etc . . . 
+									notif.defaults |= Notification.DEFAULT_SOUND;
+									
+									//Enviaem la notificació
+									notManager.notify(NOTIF_ALERTA_ID, notif);				
+
+									
 										for(int i=0;i<messages.size();i++)
 										{
 											String body = null;
 											String from = null;
+											String to = null;
 											
+											//Obtenim els missatges
 											from = messages.get(i).getFrom();
 											body = messages.get(i).getBody();
+											to = messages.get(i).getTo();
 											
+											//Guardem els missatges al historial
+									        db.open();        
+									        long id;
+									        id = db.insertTitle(
+									        		from,
+									        		to,
+									        		body);   
+									        db.close();
+									        
+									      //Mostrarem els missatges en format HTML per modificar el estil
 											if (body != null){
 												if (!from.equals(username)){
-												acumlador += from+": "+messages.get(i).toString()+"<br>";
-												txtMonitor.setText(Html.fromHtml(acumlador ));
+													acumlador += "<b><font color=\"#375b0b\">("+from+")</b>"+"<font color=\"#375b0b\">"+to+":"+"<i><font color=\"#375b0b\">"+messages.get(i).toString()+"</i></font><br>";
+													txtMonitor.setText(Html.fromHtml(acumlador ));
 												}
 											}
 										} 
@@ -133,7 +229,6 @@ public class XinXatMain extends Activity {
 								}
 						}
 					} catch (Exception e) {
-						MessageBox("Error raro");
 						e.printStackTrace();
 					}
 					
@@ -155,8 +250,18 @@ public class XinXatMain extends Activity {
 						String text = msg.getText().toString();
 						//No podem enviar camps sense res
 						if (!text.equals("")){
+							
+							if(text.equals("/clean")){
+							TextView textView1 = (TextView) findViewById(R.id.textView1);
+							textView1.setText("");
+							db.open();
+							db.deleteDB();
+							db.close();
+							}
+						
+							
 							//Comproavació si introdueix comanda de sistema 
-							if (text.startsWith("/")){
+							else if (text.startsWith("/")){
 								String type="system";
 								String sys = sendPage(target, username, type, text, token);
 								acumlador += username+": "+text+"<br>";
@@ -164,9 +269,20 @@ public class XinXatMain extends Activity {
 								txtMonitor.setText(Html.fromHtml(acumlador));
 								msg.setText("");}
 							else{
+							//Cridem a la funció sendPage que enviarà el nsotre missatge al servidor
 							sendPage(target, username, type, text, token);
-							acumlador += username+": "+text+"<br>";
+							//Modifiquem el nostre missatge amb HTML
+							acumlador += "<b><font color=\"#375b0b\">("+username+")</font></b><font color=\"#375b0b\">:"+text+"<br></font>";
 							txtMonitor.setText(Html.fromHtml(acumlador));
+							
+							  //Guardem el missatge a la Base de Dades
+							  db.open();        
+						        long id;
+						        id = db.insertTitle(
+						        		target,
+						        		username,
+						        		text);   
+						        db.close();
 							msg.setText("");
 							}
 						}
@@ -175,10 +291,46 @@ public class XinXatMain extends Activity {
 					}
 				}
 			});
+			//Obrim la Base de Dades
+			 db.open(); 
+			 //Obtenim el Historial
+			 Cursor c = db.getAllTitles();
+		        if (c.moveToFirst())
+		        {
+		            do {          
+		            	//Mostrem el Historial de la Base de Dades
+		                DisplayTitle(c);
+		            } while (c.moveToNext());
+		        }
+		    //Tanquem la Base de Dades
+	        db.close();
         
     }
     
-    /**
+	/**
+	 * Funció amb la qual mostrem el historial de conversació
+	 * 
+     * @param Cursor c
+     */
+    public void DisplayTitle(Cursor c)
+    {
+    	String historial = "";
+    	
+    	
+    	if(c.moveToFirst() ){
+    		do{
+    			Bundle bundle1 = this.getIntent().getExtras();
+    			final String target = "" + bundle1.getString("TARGET1");
+    			final String username = "" + bundle1.getString("USERNAME1");
+    			TextView txthistorial = (TextView) findViewById(R.id.textView1);
+    			if (!c.getString(1).equals(username))historial += "<b>("+c.getString(1)+")</b>"+ c.getString(2)+": "+c.getString(3)+"<br>";
+    	    	txthistorial.setText(Html.fromHtml(historial));
+    		}while (c.moveToNext());
+		}  
+    } 
+	/**
+	 * Funció que ens canvia el estat Online i que obte els missatges que té el servidor
+	 * 
      * @param target
      * @param token
      * @return
@@ -204,6 +356,8 @@ public class XinXatMain extends Activity {
     }
     
     /**
+     * Funció que ens torna els missatges que té el servidor 
+     * 
      * @param target
      * @param token
      * @return
@@ -229,6 +383,8 @@ public class XinXatMain extends Activity {
 	}
     
     /**
+     * Funció que envia el nsotre text al servidor
+     * 
      * @param target
      * @param user
      * @param type
@@ -239,6 +395,7 @@ public class XinXatMain extends Activity {
      */
 	private String sendPage(String target, String user, String type, String text, String token) throws Exception {
 		String resposta = null;
+				
 		try {
 			HttpClient client = new DefaultHttpClient();  
 			String postURL = "http://projecte-xinxat.appspot.com/messages";
@@ -268,9 +425,11 @@ public class XinXatMain extends Activity {
 
 	}
     
-	/**
-	 * @param message
-	 */
+    /**
+     * Funció que serveix per mostrar un message box en la layout quan quelcom va malament
+     * 
+     * @param String message
+     */
 	public void MessageBox(String message){
 		Toast.makeText(this,message,Toast.LENGTH_SHORT).show();
 	}
