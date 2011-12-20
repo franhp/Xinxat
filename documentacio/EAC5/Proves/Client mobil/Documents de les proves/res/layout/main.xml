@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout 
+	xmlns:android="http://schemas.android.com/apk/res/android"
+  	android:layout_width="fill_parent"
+  	android:layout_height="wrap_content"
+  	android:orientation="vertical"
+  	android:padding="10dip" android:weightSum="1">
+    <TextView android:text="Test de login d'usuari" android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" android:id="@+id/textView1" android:layout_height="wrap_content"></TextView>
+    <TextView android:text="Loggin with existing user: Values are Name->igango , Password->igango Result token:" android:id="@+id/textView2" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/a" android:id="@+id/textView3" android:textColor="@color/verde"></TextView>
+    <TextView android:text="Loggin with false user: Values are Name->isaacgango , Password->isaacgango Result:" android:id="@+id/textView4" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+	<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/a" android:id="@+id/textView5" android:textColor="@color/verde"></TextView>
+	<TextView android:text="Create md5 password from igango:" android:id="@+id/textView7" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+	<TextView android:text="@string/a" android:layout_width="wrap_content" android:id="@+id/textView6" android:layout_height="wrap_content" android:textColor="@color/verde"></TextView>
+	<Button android:text="Roster" android:id="@+id/button1" android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
+</LinearLayout>
